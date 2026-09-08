@@ -42,12 +42,14 @@ func New(
 	ptAuthOnly.PUT("/user/:username/calendar", h.HandleCalendarPut)
 	ptAuthOnly.DELETE("/user/:username/calendar", h.HandleCalendarDelete)
 	ptAuthOnly.GET("/health/db", h.HandleHealthCheckDb)
+	ptAuthOnly.GET("/notif/get", h.HandleNotifGet())
 
 	// admin only endpoints
 	ptAdmin := e.Group("/api/v1/admin")
 	ptAdmin.Use(mid.AuthenJWT(pCrypto))
 	ptAdmin.Use(mid.RoleControl(consts.Admin))
 	ptAdmin.POST("/sudo", h.HandleAdminSudo)
+	ptAdmin.POST("/notif/post", h.HandleNotifPost())
 
 	return e
 }

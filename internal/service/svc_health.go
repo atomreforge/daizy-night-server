@@ -2,6 +2,7 @@ package service
 
 import "github.com/atomreforge/daizy-night-server/internal/dbware"
 
+// notice that it directly accesses the db conn.
 type ServiceHealth struct {
 	pDB *dbware.ProviderDB
 }
