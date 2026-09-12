@@ -45,7 +45,10 @@ func NewProviderDB(ctx struct {
 		&model.User{},
 		&model.RefreshToken{},
 		&model.RegistercodeRecord{},
-		&model.CalendarTable{}, // AutoMigrate also creates the associated calendar_items table
+		&model.CalendarTable{},
+		// has-many sub-table：gorm AutoMigrate wont be created automaticly as its father table，
+		// u must explicitly state it or Calendar-Put will error with "no such table: calendar_items"
+		&model.CalendarItem{},
 	); err != nil {
 		return nil, err
 	}

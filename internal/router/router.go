@@ -49,6 +49,7 @@ func New(
 	// public domain; any verified user;
 	ptAuthOnly := e.Group("/api/v1/public")
 	ptAuthOnly.GET("/health/db", h.HandleHealthCheckDb)
+	ptAuthOnly.GET("/notif/get", h.HandleNotifGet)
 
 	ptPublic := ptAuthOnly.Group("/user")
 	ptPublic.Use(mid.AuthenJWT(pCrypto))
@@ -61,6 +62,7 @@ func New(
 	ptAdmin.Use(mid.AuthenJWT(pCrypto))
 	ptAdmin.Use(mid.RoleControl(consts.Admin))
 	ptAdmin.POST("/sudo", h.HandleAdminSudo)
+	ptAdmin.POST("/notif/post", h.HandleNotifPost)
 
 	return e
 }

@@ -32,6 +32,7 @@ type ProviderCrypto struct {
 	RefreshTokenExpireTime time.Duration
 }
 
+// summon a new crypto provider.
 func NewProviderCrypto(cfg *config.Config) (*ProviderCrypto, error) {
 	var errs []error
 	jate, err := utils.HexToPrivKey(cfg.Security.JwtAccessTokenEnckey)
@@ -65,20 +66,13 @@ func NewProviderCrypto(cfg *config.Config) (*ProviderCrypto, error) {
 	}, nil
 }
 
+// signing means
 func (p *ProviderCrypto) SignAccessToken(payload model.JwtAccessTokenPayload) (string, error) {
 	payload.ExpiresAt = jwt.NewNumericDate(time.Now().Add(p.AccessTokenExpireTime))
 	payload.IssuedAt = jwt.NewNumericDate(time.Now())
 	token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, payload)
 	return token.SignedString(p.JwtAccessTokenEnckey)
 }
-
-/*// replaced
-func (p *ProviderCrypto) SignRefreshToken(payload model.JwtRefreshTokenPayload) (string, error) {
-	payload.ExpiresAt = jwt.NewNumericDate(time.Now().Add(p.RefreshTokenExpireTime))
-	payload.IssuedAt = jwt.NewNumericDate(time.Now())
-	token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, payload)
-	return token.SignedString(p.JwtRefreshTokenEnckey)
-}*/
 
 func (p *ProviderCrypto) SignRefreshToken(payload model.JwtRefreshTokenPayload) (string, error) {
 	// random jti: EdDSA is deterministic, so two tokens issued for the same
@@ -157,4 +151,5 @@ func NewJWTKeyFunc(deckey ed25519.PublicKey) jwt.Keyfunc {
 		}
 		return deckey, nil
 	}
+
 }
