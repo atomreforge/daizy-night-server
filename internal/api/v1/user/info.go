@@ -6,5 +6,5 @@ type InfoMeRequest struct {
 }
 
 type InfoMeResponse struct {
-	model.InfoMe
+	model.InfoUser
 }

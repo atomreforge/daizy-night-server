@@ -153,7 +153,7 @@ Public. Exchanges credentials for a JWT pair.
 }
 ```
 
-### `GET /api/v1/user/{username}/me`
+### `GET /api/v1/user/{username}/info`
 
 Authenticated — requires `Authorization: Bearer <access_token>`. Returns the current user's info. The `{username}` path segment must match the authenticated identity (JWT claims), otherwise `403`.
 

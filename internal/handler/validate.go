@@ -189,7 +189,9 @@ func ValidateCalendarPutParams(b *model.CalendarPutBody) error {
 		if it.Weekday < time.Sunday || it.Weekday > time.Saturday {
 			return errs.BuildErrValidation(errs.ValidationKeyBadFormat, http.StatusBadRequest, string(consts.JsonExprWeekday), fmt.Sprintf("%d", it.Weekday))
 		}
-		if it.StartMin < 0 || it.EndMin > minutesPerDay || it.StartMin >= it.EndMin {
+		// start_min non-negativity is enforced by its uint type at bind
+		// time (negative literals fail JSON unmarshalling)
+		if it.EndMin > minutesPerDay || it.StartMin >= it.EndMin {
 			return errs.BuildErrValidation(errs.ValidationKeyBadFormat, http.StatusBadRequest, string(consts.JsonExprStartMin)+"::"+string(consts.JsonExprEndMin), fmt.Sprintf("%d..%d", it.StartMin, it.EndMin))
 		}
 		if _, err := validateNonNull(it.Title); err != nil {

@@ -25,7 +25,7 @@ func New(
 	e.Use(mid.RateLimit(cfg))            // rate limiter
 	e.Use(echomw.BodyLimit(1024 * 1024)) // cap request bodies at 1 MiB, protects the db from abuse
 
-	// public routes
+	// anonymous endpoints
 	e.POST("/api/v1/register", h.HandleRegister)
 	e.POST("/api/v1/login", h.HandleLogin)
 	e.POST("/api/v1/refresh-access-token", h.HandleRefreshAccessToken)
@@ -34,14 +34,27 @@ func New(
 	// user-scoped routes carry a :username segment; handlers must verify it
 	// matches the authenticated identity (requireSelf), uid/ownership always
 	// comes from the JWT claims.
-	ptAuthOnly := e.Group("/api/v1")
-	ptAuthOnly.Use(mid.AuthenJWT(pCrypto))
-	ptAuthOnly.GET("/user/:username/me", h.HandleMe)
-	ptAuthOnly.POST("/user/signout", h.HandleSignout)
-	ptAuthOnly.GET("/user/:username/calendar", h.HandleCalendarGet)
-	ptAuthOnly.PUT("/user/:username/calendar", h.HandleCalendarPut)
-	ptAuthOnly.DELETE("/user/:username/calendar", h.HandleCalendarDelete)
+	ptUser := e.Group("/api/v1/user")
+	ptUser.Use(mid.AuthenJWT(pCrypto))
+	ptUser.Use(mid.MarkDomain(consts.DomainPrivate))
+	// session manage
+	ptUser.POST("/signout", h.HandleSignout)
+	// user info
+	ptUser.GET("/:username/info", h.HandleInfo)
+	// services
+	ptUser.GET("/:username/calendar", h.HandleCalendarGet)
+	ptUser.PUT("/:username/calendar", h.HandleCalendarPut)
+	ptUser.DELETE("/:username/calendar", h.HandleCalendarDelete)
+
+	// public domain; any verified user;
+	ptAuthOnly := e.Group("/api/v1/public")
 	ptAuthOnly.GET("/health/db", h.HandleHealthCheckDb)
+
+	ptPublic := ptAuthOnly.Group("/user")
+	ptPublic.Use(mid.AuthenJWT(pCrypto))
+	ptPublic.Use(mid.MarkDomain(consts.DomainPublic))
+	ptPublic.GET("/:username/info", h.HandleInfo)
+	ptPublic.GET("/:username/calendar", h.HandleCalendarGet)
 
 	// admin only endpoints
 	ptAdmin := e.Group("/api/v1/admin")

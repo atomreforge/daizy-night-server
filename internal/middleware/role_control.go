@@ -17,7 +17,7 @@ func RoleControl(allowed ...consts.Role) echo.MiddlewareFunc {
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
-			token, err := echo.ContextGet[*jwt.Token](c, string(consts.ExprContextKeyJWT))
+			token, err := echo.ContextGet[*jwt.Token](c, string(consts.CtxExprKeyJWT))
 			if err != nil {
 				return echo.ErrUnauthorized
 			}

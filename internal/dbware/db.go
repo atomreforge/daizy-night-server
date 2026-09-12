@@ -45,7 +45,7 @@ func NewProviderDB(ctx struct {
 		&model.User{},
 		&model.RefreshToken{},
 		&model.RegistercodeRecord{},
-		&model.Calendar{}, // AutoMigrate also creates the associated calendar_items table
+		&model.CalendarTable{}, // AutoMigrate also creates the associated calendar_items table
 	); err != nil {
 		return nil, err
 	}

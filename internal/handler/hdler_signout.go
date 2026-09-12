@@ -31,7 +31,7 @@ func (h *HandlerComplex) HandleSignout(ctx *echo.Context) error {
 
 	// the session belongs to the authenticated caller: uid never comes
 	// from the request body
-	token, err := echo.ContextGet[*jwt.Token](ctx, string(consts.ExprContextKeyJWT))
+	token, err := echo.ContextGet[*jwt.Token](ctx, string(consts.CtxExprKeyJWT))
 	if err != nil {
 		return err
 	}

@@ -21,7 +21,7 @@ type LoginBody struct {
 	Entrycode string          `json:"entrycode"`
 }
 
-type InfoMe struct {
+type InfoUser struct {
 	Uid uint `json:"uid"`
 
 	Username string `json:"username"`
@@ -53,8 +53,8 @@ type SignoutBody struct {
 // CalendarItemBody is one weekly slot of a calendar-upsert request.
 type CalendarItemBody struct {
 	Weekday  time.Weekday `json:"weekday"`
-	StartMin int          `json:"start_min"`
-	EndMin   int          `json:"end_min"`
+	StartMin uint         `json:"start_min"`
+	EndMin   uint         `json:"end_min"`
 	Title    string       `json:"title"`
 }
 

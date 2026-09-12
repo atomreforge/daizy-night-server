@@ -10,15 +10,16 @@ type InterfaceServiceUser interface {
 
 	GetUserByUid(uid uint) (*model.User, error)
 	GetUserByUsername(name string) (*model.User, error)
-	GetInfoMineByUid(uid uint) (*model.InfoMe, error)
+	GetInfoMineByUid(uid uint) (*model.InfoUser, error)
 
 	GetUidByRefreshToken(rawToken string) (uint, error)
 
-	AddCalendar(cal *model.Calendar) error
-	UpdateCalendar(cal *model.Calendar) error
-	RemoveCalendarByModel(cal *model.Calendar) error
+	AddCalendar(cal *model.CalendarTable) error
+	UpdateCalendar(cal *model.CalendarTable) error
+	RemoveCalendarByModel(cal *model.CalendarTable) error
 	RemoveCalendarByUid(uid uint) error
-	GetCalendarByUid(uid uint) (*model.Calendar, error)
+	GetCalendarByUid(uid uint) (*model.CalendarTable, error)
+	GetCalendarByUsername(name string) (*model.CalendarTable, error)
 }
 
 type InterfaceServiceCode interface {

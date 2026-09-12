@@ -6,6 +6,7 @@ import (
 
 	v1 "github.com/atomreforge/daizy-night-server/internal/api/v1/user"
 	"github.com/atomreforge/daizy-night-server/internal/consts"
+	"github.com/atomreforge/daizy-night-server/internal/errs"
 	mid "github.com/atomreforge/daizy-night-server/internal/middleware"
 	"github.com/atomreforge/daizy-night-server/internal/model"
 	"github.com/atomreforge/daizy-night-server/internal/utils"
@@ -13,12 +14,18 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-func (h *HandlerComplex) HandleMe(ctx *echo.Context) error {
+func (h *HandlerComplex) HandleInfo(ctx *echo.Context) error {
 	// record flow chain (monotonically accumulating)
 	utils.AppendCallChain(ctx, string(consts.ModExprHandlerMe))
-	utils.Layer(ctx).Info(fmt.Sprintf("%s", consts.ExprReqInfoMine))
+	utils.Layer(ctx).Info(fmt.Sprintf("%s", consts.ExprReqUserInfo))
 
-	token, err := echo.ContextGet[*jwt.Token](ctx, string(consts.ExprContextKeyJWT))
+	// public /info disclosure semantics (email, github ids) are not
+	// settled yet; reject until a sanitized response is defined.
+	if GetDomain(ctx) == consts.DomainPublic {
+		return errs.BuildErrSupport(errs.FeatureUnsupported, http.StatusForbidden)
+	}
+
+	token, err := echo.ContextGet[*jwt.Token](ctx, string(consts.CtxExprKeyJWT))
 	if err != nil {
 		return err
 	}
@@ -39,22 +46,7 @@ func (h *HandlerComplex) HandleMe(ctx *echo.Context) error {
 		return err
 	}
 
-	mid.RespondObj(ctx, http.StatusOK, v1.InfoMeResponse{InfoMe: *b})
+	mid.RespondObj(ctx, http.StatusOK, v1.InfoMeResponse{InfoUser: *b})
 
 	return nil
-
-	/*token, err := echo.ContextGet[*jwt.Token](ctx, string(consts.ExprContextKeyJWT))
-	if err != nil {
-		return err
-	}
-	claims, ok := token.Claims.(*model.JwtAccessTokenPayload)
-	if !ok {
-		slog.Error("failed to assert claims to JwtAccessTokenPayload")
-		return echo.ErrUnauthorized
-	}
-	return mid.RespondObj(ctx, 200, map[string]any{
-		string(consts.ExprUserID):   claims.Uid,
-		string(consts.ExprUsername): claims.Username,
-		string(consts.JsonExprRole): claims.Role,
-	})*/
 }

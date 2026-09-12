@@ -294,14 +294,14 @@ func (s *ServiceUser) Signout(b *model.SignoutBody) (success bool, err error) {
 	return true, nil
 }
 
-func (s *ServiceUser) GetInfoMineByUid(uid uint) (*model.InfoMe, error) {
+func (s *ServiceUser) GetInfoMineByUid(uid uint) (*model.InfoUser, error) {
 	// the repo answers 404 for a missing user record (see repo contract)
 	user, err := s.repoUser.GetUserByUid(uid)
 	if err != nil {
 		return nil, err
 	}
 
-	return &model.InfoMe{
+	return &model.InfoUser{
 		Uid:          user.UserID,
 		Username:     user.Username,
 		Nickname:     user.Nickname,
@@ -348,15 +348,15 @@ func (s *ServiceUser) GetUserByRefreshToken(rawToken string) (*model.User, error
 	return s.repoUser.GetUserByUid(uid)
 }
 
-func (s *ServiceUser) AddCalendar(cal *model.Calendar) error {
+func (s *ServiceUser) AddCalendar(cal *model.CalendarTable) error {
 	return s.repoCalendar.RecordNewCalendar(cal)
 }
 
-func (s *ServiceUser) UpdateCalendar(cal *model.Calendar) error {
+func (s *ServiceUser) UpdateCalendar(cal *model.CalendarTable) error {
 	return s.repoCalendar.UpdateCalendar(cal)
 }
 
-func (s *ServiceUser) RemoveCalendarByModel(cal *model.Calendar) error {
+func (s *ServiceUser) RemoveCalendarByModel(cal *model.CalendarTable) error {
 	return s.repoCalendar.RemoveCalendarByModel(cal)
 }
 
@@ -364,6 +364,17 @@ func (s *ServiceUser) RemoveCalendarByUid(uid uint) error {
 	return s.repoCalendar.RemoveCalendarByUid(uid)
 }
 
-func (s *ServiceUser) GetCalendarByUid(uid uint) (*model.Calendar, error) {
+func (s *ServiceUser) GetCalendarByUid(uid uint) (*model.CalendarTable, error) {
 	return s.repoCalendar.GetCalendarByUid(uid)
+}
+
+func (s *ServiceUser) GetCalendarByUsername(name string) (*model.CalendarTable, error) {
+	user, err := s.repoUser.GetUserByUsername(name)
+	if err != nil {
+		if e, ok := errs.Easx[*errs.ErrDbRecord](err); ok && e.Type == errs.DbRecordUsernameNotFound {
+			return nil, errs.BuildErrDbRecord(errs.DbRecordUsernameNotFound, http.StatusNotFound, string(consts.InlineExprUser))
+		}
+		return nil, err
+	}
+	return s.repoCalendar.GetCalendarByUid(user.UserID)
 }

@@ -49,9 +49,10 @@ const (
 
 // program
 const (
-	ExprContextKeyJWT expression = "jwt_user"
-	ExprUserID        expression = "uid"
-	ExprTraceid       expression = "traceid"
+	CtxExprKeyJWT    expression = "jwt_user"
+	CtxExprKeyDomain expression = "router_domain"
+	ExprUserID       expression = "uid"
+	ExprTraceid      expression = "traceid"
 )
 
 // json
@@ -114,7 +115,7 @@ const (
 const (
 	ExprReqRegister  expression = "Request-Register"
 	ExprReqLogin     expression = "Request-Login"
-	ExprReqInfoMine  expression = "Request-InfoMine"
+	ExprReqUserInfo  expression = "Request-UserInfo"
 	ExprReqAdminSudo expression = "Request-AdminSudo"
 	ExprReqRefresh   expression = "Request-Refresh"
 	ExprReqSignout   expression = "Request-Signout"
@@ -122,4 +123,12 @@ const (
 	ExprReqCalendarGet    expression = "Request-CalendarGet"
 	ExprReqCalendarPut    expression = "Request-CalendarPut"
 	ExprReqCalendarDelete expression = "Request-CalendarDelete"
+)
+
+// router domain
+const (
+	DomainExprNull         expression = "Domain-Null"
+	DomainExprPrivate      expression = "Domain-Private"
+	DomainExprPublic       expression = "Domain-Public"
+	DomainExprUnauthorized expression = "Domain-Unauthorized"
 )

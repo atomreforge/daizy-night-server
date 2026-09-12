@@ -32,13 +32,13 @@ type InterfaceRepoRegistercode interface {
 
 type InterfaceRepoCalendar interface {
 	// insert a new calendar (with items) for a user; generates CalendarID
-	RecordNewCalendar(b *model.Calendar) error
+	RecordNewCalendar(b *model.CalendarTable) error
 	// fetch the user's calendar with all items preloaded
-	GetCalendarByUid(uid uint) (*model.Calendar, error)
+	GetCalendarByUid(uid uint) (*model.CalendarTable, error)
 	// full replacement of the user's items, auto lookup by uid; the row is
 	// created on first use
-	UpdateCalendar(b *model.Calendar) error
+	UpdateCalendar(b *model.CalendarTable) error
 	// remove by uid, cascading the items; idempotent
 	RemoveCalendarByUid(uid uint) error
-	RemoveCalendarByModel(b *model.Calendar) error
+	RemoveCalendarByModel(b *model.CalendarTable) error
 }

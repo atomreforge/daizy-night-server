@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/atomreforge/daizy-night-server/internal/consts"
 	"github.com/atomreforge/daizy-night-server/internal/model"
 	"github.com/labstack/echo/v5"
 )
@@ -20,4 +21,12 @@ func requireSelf(ctx *echo.Context, claims *model.JwtAccessTokenPayload) error {
 		return echo.ErrForbidden
 	}
 	return nil
+}
+
+func GetDomain(ctx *echo.Context) consts.RouterDomain {
+	d, err := echo.ContextGet[consts.RouterDomain](ctx, string(consts.CtxExprKeyDomain))
+	if err != nil {
+		return consts.DomainNull
+	}
+	return d
 }

@@ -14,7 +14,7 @@ import (
 
 func AuthenJWT(p abstract.InterfaceCrypto) echo.MiddlewareFunc {
 	return echojwt.WithConfig(echojwt.Config{
-		ContextKey: string(consts.ExprContextKeyJWT),
+		ContextKey: string(consts.CtxExprKeyJWT),
 		KeyFunc:    crypto.NewJWTKeyFunc(p.GetJwtAccessTokenDeckey().(ed25519.PublicKey)),
 		NewClaimsFunc: func(c *echo.Context) jwt.Claims {
 			return &model.JwtAccessTokenPayload{}

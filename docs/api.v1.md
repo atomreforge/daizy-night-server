@@ -30,11 +30,13 @@
 
 ### 用户资源路由与属主校验
 
-用户级端点（`me`、`calendar`）统一采用 `/api/v1/user/{username}/...` 路径形态：
+用户级端点（`info`、`calendar`）统一采用 `/api/v1/user/{username}/...` 路径形态：
 
 - `{username}` 路径段仅用于**属主校验**：必须与 access token claims 中的 `username` 完全一致，否则返回 `403`
 - 数据定位所用的 `uid` 永远取自 JWT claims；请求体不携带（也不接受）任何用户标识字段
 - 通用错误码：`401` access token 缺失、无效或过期；`403` 属主校验失败（下文各端点列出的 `403` 均指此语义）
+- 公共域例外：`GET /api/v1/public/user/{username}/calendar` 已认证后可读取**任意** `{username}` 的课表，不做属主校验（见对应端点）；公共写操作已废弃
+- 公共域 `/api/v1/public/user/{username}/info` 为预留端点：披露语义（email、github 字段）未定稿，当前统一返回 `403`
 
 ## 端点
 
@@ -137,7 +139,7 @@
 - 每次成功刷新都会吊销被使用的这一枚 refresh token，并签发全新 token 对；客户端必须整体覆盖保存，旧 refresh token 立即失效
 - 吊销精确到单枚 token：多设备各自持有独立的 refresh token，一台设备刷新不影响其他设备的登录态
 
-### GET /api/v1/user/{username}/me
+### GET /api/v1/user/{username}/info
 
 获取当前认证用户的信息。需要认证。路径中的 `{username}` 必须与认证身份（JWT claims）一致，否则 `403`。
 
@@ -176,9 +178,11 @@
 
 ```json
 {
+  "roaming": { "description": "", "annotation": "" },
+  "uid": 1527277,
   "calendar_id": 7362514,
   "records": [
-    { "weekday": 1, "start_min": 480, "end_min": 570, "title": "数学" }
+    { "calendar_id": 7362514, "weekday": 1, "start_min": 480, "end_min": 570, "title": "数学" }
   ]
 }
 ```
@@ -224,6 +228,29 @@
 
 - `200` `{"message": "ok"}`
 - `401` / `403` 同上
+
+### GET /api/v1/public/user/{username}/calendar
+
+公共只读域：任何已认证用户可查看任意用户的课表，不做属主校验。需要认证。
+
+请求头：`Authorization: Bearer <access_token>`
+
+响应：`200`
+
+```json
+{
+  "uid": 1527277,
+  "calendar_id": 7362514,
+  "records": [
+    { "calendar_id": 7362514, "weekday": 1, "start_min": 480, "end_min": 570, "title": "数学" }
+  ]
+}
+```
+
+`records` 排序规则同自我访问端点（`weekday`、`start_min` 升序）。
+
+- `401` access token 缺失、无效或过期
+- `404` 用户不存在，或该用户尚未创建课表
 
 ### POST /api/v1/user/signout
 

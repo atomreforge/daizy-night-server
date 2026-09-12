@@ -27,11 +27,11 @@ func NewRepoCalendar(pDB abstract.InterfaceProviderDB) *RepoCalendar {
 	return &RepoCalendar{pDB: pDB}
 }
 
-func (r *RepoCalendar) RecordNewCalendar(b *model.Calendar) error {
+func (r *RepoCalendar) RecordNewCalendar(b *model.CalendarTable) error {
 	return r.pDB.DB().Transaction(func(tx *gorm.DB) error {
 		// single calendar per user
 		var count int64
-		if err := tx.Model(&model.Calendar{}).Where("user_id = ?", b.UserID).Count(&count).Error; err != nil {
+		if err := tx.Model(&model.CalendarTable{}).Where("user_id = ?", b.UserID).Count(&count).Error; err != nil {
 			return err
 		}
 		if count > 0 {
@@ -41,8 +41,8 @@ func (r *RepoCalendar) RecordNewCalendar(b *model.Calendar) error {
 	})
 }
 
-func (r *RepoCalendar) GetCalendarByUid(uid uint) (*model.Calendar, error) {
-	var rec model.Calendar
+func (r *RepoCalendar) GetCalendarByUid(uid uint) (*model.CalendarTable, error) {
+	var rec model.CalendarTable
 	res := r.pDB.DB().
 		Preload("Records", func(db *gorm.DB) *gorm.DB { return db.Order("weekday ASC, start_min ASC") }).
 		Where("user_id = ?", uid).First(&rec)
@@ -58,9 +58,9 @@ func (r *RepoCalendar) GetCalendarByUid(uid uint) (*model.Calendar, error) {
 // UpdateCalendar performs a full replacement of the user's timetable and
 // auto looks up the row by uid; the row is created on first use, so a PUT
 // never has to branch between create and update.
-func (r *RepoCalendar) UpdateCalendar(b *model.Calendar) error {
+func (r *RepoCalendar) UpdateCalendar(b *model.CalendarTable) error {
 	return r.pDB.DB().Transaction(func(tx *gorm.DB) error {
-		var cur model.Calendar
+		var cur model.CalendarTable
 		err := tx.Where("user_id = ?", b.UserID).First(&cur).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return createCalendar(tx, b)
@@ -91,7 +91,7 @@ func (r *RepoCalendar) UpdateCalendar(b *model.Calendar) error {
 // CASCADE would never fire). idempotent: succeeds when none exists.
 func (r *RepoCalendar) RemoveCalendarByUid(uid uint) error {
 	return r.pDB.DB().Transaction(func(tx *gorm.DB) error {
-		var cur model.Calendar
+		var cur model.CalendarTable
 		err := tx.Where("user_id = ?", uid).First(&cur).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil
@@ -107,12 +107,12 @@ func (r *RepoCalendar) RemoveCalendarByUid(uid uint) error {
 }
 
 // RemoveCalendarByModel removes by primary key, cascading the items.
-func (r *RepoCalendar) RemoveCalendarByModel(b *model.Calendar) error {
+func (r *RepoCalendar) RemoveCalendarByModel(b *model.CalendarTable) error {
 	if b == nil || b.ID == 0 {
 		return errs.BuildErrDbRecord(errs.DbRecordNotFound, http.StatusBadRequest, string(consts.ExprCalendar))
 	}
 	return r.pDB.DB().Transaction(func(tx *gorm.DB) error {
-		var cur model.Calendar
+		var cur model.CalendarTable
 		if err := tx.First(&cur, b.ID).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil
@@ -128,7 +128,7 @@ func (r *RepoCalendar) RemoveCalendarByModel(b *model.Calendar) error {
 
 // createCalendar generates the business id (same recipe as CreateUser) and
 // inserts the calendar row plus its items.
-func createCalendar(tx *gorm.DB, b *model.Calendar) error {
+func createCalendar(tx *gorm.DB, b *model.CalendarTable) error {
 	for i := 0; i < maxGenIDAttempts; i++ {
 		id, err := utils.GenUid()
 		if err != nil {
