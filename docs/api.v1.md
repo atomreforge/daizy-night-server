@@ -187,7 +187,7 @@
 }
 ```
 
-`records` 按 `weekday`、`start_min` 升序返回；课表存在但无课程条目时返回 `[]`（不会是 `null`）。
+`records` 按 `weekday`、`start_min` 升序返回；课表存在但无课程条目时返回 `[]`（不会是 `null`）。`roaming`（`description` / `annotation`）为预留的描述性字段，当前恒为空字符串。
 
 - `401` access token 缺失、无效或过期
 - `403` 路径中的用户名与认证身份不一致
@@ -213,6 +213,8 @@
 | `records[].start_min` | 整数 `≥ 0`，距当天 00:00 的分钟数 |
 | `records[].end_min` | 整数，满足 `start_min < end_min ≤ 1440` |
 | `records[].title` | 非空，1–255 字符 |
+
+> 注：`start_min` / `end_min` 在服务端为无符号整数，请求中出现负数字面量时会在 JSON 解析阶段直接拒绝（`400`，message 为固定回退文本 `internal server error`，而非业务错误文案）。
 
 响应：
 
@@ -251,6 +253,23 @@
 
 - `401` access token 缺失、无效或过期
 - `404` 用户不存在，或该用户尚未创建课表
+
+### GET /api/v1/public/health/db
+
+数据库健康检查。公开端点，无需认证。
+
+响应：
+
+- `200` `{"message": "ok"}`（数据库可正常连接）
+- `500` `{"message": "error with db."}`（数据库连接失败）
+
+### GET /api/v1/public/notif/get
+
+通知功能占位端点（init 阶段）。公开端点，无需认证。
+
+响应：
+
+- `200` `{"message": "ok"}`（占位实现，暂无实际内容）
 
 ### POST /api/v1/user/signout
 
@@ -294,6 +313,16 @@
 响应：
 
 - `200` 空响应体
+- `401` 认证失败
+- `403` 已认证但角色非 `admin`
+
+### POST /api/v1/admin/notif/post
+
+通知功能占位端点（init 阶段）。需要认证，且要求 `admin` 角色。
+
+响应：
+
+- `200` `{"message": "ok"}`（占位实现，暂无实际内容）
 - `401` 认证失败
 - `403` 已认证但角色非 `admin`
 
