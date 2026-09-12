@@ -96,7 +96,7 @@ By default the server listens on `127.0.0.1:4703`. The SQLite database is create
 | `http` | `address` | `127.0.0.1` | no | Bind address |
 | `http.rateLimit` | `enabled` | `true` | no | Toggle the rate limiter |
 | `http.rateLimit` | `rate` | `10` | no | Tokens refilled per second |
-| `http.rateLimit` | `burst` | `30` | no | Bucket capacity |
+| `http.rateLimit` | `burst` | `7` | no | Bucket capacity |
 | `http.rateLimit` | `expiresIn` | `3m` | no | Entry expiry |
 | `database` | `isDebugMode` | `false` | no | Verbose GORM logging |
 | `database` | `DSN` | `./data.db` | **yes** | SQLite file path |
