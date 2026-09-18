@@ -11,6 +11,7 @@ type InterfaceServiceUser interface {
 	GetUserByUid(uid uint) (*model.User, error)
 	GetUserByUsername(name string) (*model.User, error)
 	GetInfoMineByUid(uid uint) (*model.InfoUser, error)
+	GetInfoByUsername(name string) (*model.InfoUser, error)
 
 	GetUidByRefreshToken(rawToken string) (uint, error)
 
