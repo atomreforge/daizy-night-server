@@ -313,6 +313,32 @@ func (s *ServiceUser) GetInfoMineByUid(uid uint) (*model.InfoUser, error) {
 	}, nil
 }
 
+// GetInfoByUsername resolves a user's info by username for the public-domain
+// /info endpoint. The repo answers 400 for a missing username (the login
+// flow's generic contract); remap to 404 here, matching GetCalendarByUsername.
+// The returned DTO is the FULL view — sanitization to the public response
+// shape happens in the handler's public-domain branch.
+func (s *ServiceUser) GetInfoByUsername(name string) (*model.InfoUser, error) {
+	user, err := s.repoUser.GetUserByUsername(name)
+	if err != nil {
+		if e, ok := errs.Easx[*errs.ErrDbRecord](err); ok && e.Type == errs.DbRecordUsernameNotFound {
+			return nil, errs.BuildErrDbRecord(errs.DbRecordUsernameNotFound, http.StatusNotFound, string(consts.InlineExprUser))
+		}
+		return nil, err
+	}
+
+	return &model.InfoUser{
+		Uid:          user.UserID,
+		Username:     user.Username,
+		Nickname:     user.Nickname,
+		Email:        user.Email,
+		RegisterTime: user.RegisterTime,
+		Role:         user.Role,
+		GithubID:     user.GithubID,
+		GithubLogin:  user.GithubLogin,
+	}, nil
+}
+
 func (s *ServiceUser) GetUserByUsername(name string) (*model.User, error) {
 	// the repo answers 400 for a missing username (see repo contract)
 	user, err := s.repoUser.GetUserByUsername(name)

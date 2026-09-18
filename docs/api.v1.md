@@ -35,8 +35,9 @@
 - `{username}` 路径段仅用于**属主校验**：必须与 access token claims 中的 `username` 完全一致，否则返回 `403`
 - 数据定位所用的 `uid` 永远取自 JWT claims；请求体不携带（也不接受）任何用户标识字段
 - 通用错误码：`401` access token 缺失、无效或过期；`403` 属主校验失败（下文各端点列出的 `403` 均指此语义）
-- 公共域例外：`GET /api/v1/public/user/{username}/calendar` 已认证后可读取**任意** `{username}` 的课表，不做属主校验（见对应端点）；公共写操作已废弃
-- 公共域 `/api/v1/public/user/{username}/info` 为预留端点：披露语义（email、github 字段）未定稿，当前统一返回 `403`
+- 公共域例外：已认证后可读取**任意** `{username}` 的数据，不做属主校验（见对应端点）；公共写操作已废弃
+  - `GET /api/v1/public/user/{username}/calendar`：课表（剥离 `roaming` 描述字段）
+  - `GET /api/v1/public/user/{username}/info`：**脱敏**资料（不含 `email`、`github_id`、`github_login`）
 
 ## 端点
 
@@ -254,22 +255,49 @@
 - `401` access token 缺失、无效或过期
 - `404` 用户不存在，或该用户尚未创建课表
 
+### GET /api/v1/public/user/{username}/info
+
+公共只读端点：任何已认证用户可查看任意用户的资料（**脱敏视图**），不做属主校验。需要认证。
+
+请求头：`Authorization: Bearer <access_token>`
+
+响应：`200`
+
+```json
+{
+  "uid": 1527277,
+  "username": "alice",
+  "nickname": "Alice",
+  "register_time": "2026-08-31T12:00:00.000000Z",
+  "role": "user"
+}
+```
+
+与自我访问端点（`GET /api/v1/user/{username}/info`）相比，本视图**不含** `email`、`github_id`、`github_login` 等账户私密字段。
+
+- `401` access token 缺失、无效或过期
+- `404` 用户不存在
+
 ### GET /api/v1/public/health/db
 
-数据库健康检查。公开端点，无需认证。
+数据库健康检查。需要认证。
+
+请求头：`Authorization: Bearer <access_token>`
 
 响应：
 
 - `200` `{"message": "ok"}`（数据库可正常连接）
+- `401` access token 缺失、无效或过期
 - `500` `{"message": "error with db."}`（数据库连接失败）
 
 ### GET /api/v1/public/notif/get
 
-通知功能占位端点（init 阶段）。公开端点，无需认证。
+通知功能占位端点（init 阶段）。需要认证。当前版本暂未开放（路由暂未注册）。
 
 响应：
 
 - `200` `{"message": "ok"}`（占位实现，暂无实际内容）
+- `401` access token 缺失、无效或过期
 
 ### POST /api/v1/user/signout
 
@@ -318,7 +346,7 @@
 
 ### POST /api/v1/admin/notif/post
 
-通知功能占位端点（init 阶段）。需要认证，且要求 `admin` 角色。
+通知功能占位端点（init 阶段）。需要认证，且要求 `admin` 角色。当前版本暂未开放（路由暂未注册）。
 
 响应：
 

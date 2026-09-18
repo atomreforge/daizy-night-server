@@ -37,22 +37,22 @@ func New(
 	ptUser := e.Group("/api/v1/user")
 	ptUser.Use(mid.AuthenJWT(pCrypto))
 	ptUser.Use(mid.MarkDomain(consts.DomainPrivate))
-	// session manage
 	ptUser.POST("/signout", h.HandleSignout)
-	// user info
 	ptUser.GET("/:username/info", h.HandleInfo)
 	// services
 	ptUser.GET("/:username/calendar", h.HandleCalendarGet)
 	ptUser.PUT("/:username/calendar", h.HandleCalendarPut)
 	ptUser.DELETE("/:username/calendar", h.HandleCalendarDelete)
 
-	// public domain; any verified user;
+	// endpoints that requires authen only (no anonymous access here).
 	ptAuthOnly := e.Group("/api/v1/public")
+	ptAuthOnly.Use(mid.AuthenJWT(pCrypto))
+	ptAuthOnly.Use(mid.MarkDomain(consts.DomainUnauthorized))
 	ptAuthOnly.GET("/health/db", h.HandleHealthCheckDb)
 	//ptAuthOnly.GET("/notif/get", h.HandleNotifGet())
 
 	ptPublic := ptAuthOnly.Group("/user")
-	ptPublic.Use(mid.AuthenJWT(pCrypto))
+	// AuthenJWT/DomainUnauthorized are inherited from ptAuthOnly; override as public domain
 	ptPublic.Use(mid.MarkDomain(consts.DomainPublic))
 	ptPublic.GET("/:username/info", h.HandleInfo)
 	ptPublic.GET("/:username/calendar", h.HandleCalendarGet)
