@@ -1,0 +1,11 @@
+# 交叉编译脚本（Git Bash / sh 下运行：sh build）
+#
+# 注意：server 依赖 mattn/go-sqlite3（需要 CGO）。
+#  - windows：使用本机 CGO 构建（需本机 gcc，当前环境可用）
+#  - linux / darwin：CGO_ENABLED=0 只能编出 mattn 的 static_mock 存根，
+#    能编译但运行时打开数据库即报错；需先切换纯 Go 驱动（如 glebarez/sqlite）
+#    才能产出可用的 linux/darwin 二进制。
+
+go build -o dnserver-x64-windows.exe ./cmd/main.go
+CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o dnserver-arm64-darwin ./cmd/main.go
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o dnserver-x64-linux ./cmd/main.go

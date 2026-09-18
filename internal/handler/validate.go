@@ -124,7 +124,6 @@ func ValidateFormatRegistercode(c model.RegistercodeRawHex) (bool, error) {
 	if c == "" {
 		return false, errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprRegistercode), string(consts.ExprNull))
 	}
-	// 用 Split after last "." 确保恰好两部分
 	i := strings.LastIndex(string(c), ".")
 	if i <= 0 || i == len(c)-1 {
 		return false, errs.BuildErrValidation(errs.ValidationKeyBadFormat, http.StatusBadRequest, string(consts.ExprRegistercode), c.String())

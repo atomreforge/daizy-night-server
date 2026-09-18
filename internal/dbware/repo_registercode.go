@@ -22,20 +22,9 @@ func NewRepoRegistercode(pDB abstract.InterfaceProviderDB) *RepoRegistercode {
 	return &RepoRegistercode{pDB: pDB}
 }
 
-/*func (r *RepoRegistercode) Record(rawHex model.RegistercodeRawHex) error {
-	return r.pDB.DB().Transaction(func(tx *gorm.DB) error {
-		err := tx.Create(&model.RegistercodeRecord{RawHex: rawHex}).Error
-		if err != nil {
-			if errors.Is(err, gorm.ErrDuplicatedKey) {
-				// repoRegcode records all known or contacted regcodes.
-				return nil
-			}
-			return err
-		}
-		return nil
-	})
-}*/
-
+// once the server contacts a registercode(no matter whether valid ot not)
+// it records it.
+// [!] notice that the feature is possible to be exploited by attackers if any bcz the register process doesnt req auth.
 func (r *RepoRegistercode) RecordNewRegistercode(b *model.RegistercodeRecord) error {
 	return r.pDB.DB().Transaction(func(tx *gorm.DB) error {
 		if tx.Create(b).Error != nil {
@@ -55,6 +44,8 @@ func (r *RepoRegistercode) Remove(rawHex model.RegistercodeRawHex) error {
 	})
 }
 
+// mark an exsiting registercode as used by a user;
+// the metaphor is that the user has "consumed" the registercode, so it cannot be used again.
 func (r *RepoRegistercode) Used(rawHex model.RegistercodeRawHex, value bool, userID uint) error {
 	rec, err := r.GetRecordByRegistercode(rawHex)
 	if err != nil {
@@ -68,6 +59,7 @@ func (r *RepoRegistercode) Used(rawHex model.RegistercodeRawHex, value bool, use
 	})
 }
 
+// fully update.
 func (r *RepoRegistercode) Updates(record model.RegistercodeRecord) error {
 	rec, err := r.GetRecordByRegistercode(record.RawHex)
 	if err != nil {

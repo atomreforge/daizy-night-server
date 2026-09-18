@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/atomreforge/daizy-night-server/internal/config"
+	"github.com/atomreforge/daizy-night-server/internal/model"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -84,5 +85,42 @@ func TestLegacyTokenHashColumnIsDropped(t *testing.T) {
 	rt := &RepoToken{pDB: p, cfg: cfg}
 	if err := rt.SaveRefreshToken(1, "fresh-token"); err != nil {
 		t.Fatalf("insert into rebuilt table: %v", err)
+	}
+}
+
+// TestCalendarItemTableCreatedAndUsable reproduces a production failure:
+// gorm's AutoMigrate does not create has-many child tables, so databases
+// provisioned through NewProviderDB lacked calendar_items and every calendar
+// put failed with "no such table: calendar_items". The repo-level write +
+// read roundtrip below fails unless the child table exists and is usable.
+func TestCalendarItemTableCreatedAndUsable(t *testing.T) {
+	dsn := fmt.Sprintf("file:dntest_calendaritem_%d?mode=memory&cache=shared", time.Now().UnixNano())
+
+	p, err := NewProviderDB(struct {
+		IsDebugMode bool
+		DSN         string
+	}{false, dsn})
+	if err != nil {
+		t.Fatalf("provider: %v", err)
+	}
+	defer p.Close()
+
+	repo := &RepoCalendar{pDB: p}
+	cal := &model.CalendarTable{
+		UserID: 42,
+		Records: []model.CalendarItem{
+			{Weekday: 1, StartMin: 100, EndMin: 200, Title: "CS"},
+		},
+	}
+	if err := repo.RecordNewCalendar(cal); err != nil {
+		t.Fatalf("record calendar: %v", err)
+	}
+
+	got, err := repo.GetCalendarByUid(42)
+	if err != nil {
+		t.Fatalf("get calendar: %v", err)
+	}
+	if len(got.Records) != 1 || got.Records[0].Title != "CS" {
+		t.Fatalf("records mismatch: %+v", got.Records)
 	}
 }

@@ -12,7 +12,7 @@ import (
 
 func (h *HandlerComplex) HandleRefreshAccessToken(ctx *echo.Context) error {
 	utils.AppendCallChain(ctx, string(consts.ModExprHandlerRefresh))
-	utils.Layer(ctx).Info("got::" + string(consts.ExprReqRefresh))
+	utils.Layer(ctx).Info(string(consts.ExprReqRefresh))
 
 	req, err := Bind[v1.RefrehAccessTokenRequest](ctx)
 	if err != nil {
@@ -24,21 +24,10 @@ func (h *HandlerComplex) HandleRefreshAccessToken(ctx *echo.Context) error {
 		return err
 	}
 
-	/*// lookup twice; wait for optimization
-	uid, err := h.ServiceUser.GetUidByRefreshToken(req.RefreshToken)
-	if err != nil {
-		return err
-	}
-	user, err := h.ServiceUser.GetUserByUid(uid)
-	if err != nil {
-		return err
-	}*/
-
 	ok, accessToken, refreshToken, err := h.ServiceUser.RefreshAccessToken(req.RefreshToken)
 	if !ok || err != nil {
 		return err
 	}
-	//defer utils.Layer(ctx).Info(fmt.Sprintf("successfully refreshed access token for user::%s", user.Username))
 	return mid.RespondObj(ctx, http.StatusOK, v1.RefreshAccessTokenResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

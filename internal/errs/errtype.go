@@ -123,15 +123,7 @@ var errorMessages = map[errType]string{
 	ConnDbInterrupted: "db connection interrupted",
 }
 
-/*
-
-var errorMessages = map[errType]string{
-    Unknown:                         "unknown error",
-    Undefined:                       "undefined error",
-    ValidationKeyNull:               "must not be null",
-    ValidationKeyOverLength:         "length should be shorter than 15 chars",
-}*/
-
+// printer
 func (t *errType) Say() string {
 	if msg, ok := errorMessages[*t]; ok {
 		return msg
