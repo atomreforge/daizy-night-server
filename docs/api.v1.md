@@ -256,20 +256,24 @@
 
 ### GET /api/v1/public/health/db
 
-数据库健康检查。公开端点，无需认证。
+数据库健康检查。需要认证。
+
+请求头：`Authorization: Bearer <access_token>`
 
 响应：
 
 - `200` `{"message": "ok"}`（数据库可正常连接）
+- `401` access token 缺失、无效或过期
 - `500` `{"message": "error with db."}`（数据库连接失败）
 
 ### GET /api/v1/public/notif/get
 
-通知功能占位端点（init 阶段）。公开端点，无需认证。
+通知功能占位端点（init 阶段）。需要认证。当前版本暂未开放（路由暂未注册）。
 
 响应：
 
 - `200` `{"message": "ok"}`（占位实现，暂无实际内容）
+- `401` access token 缺失、无效或过期
 
 ### POST /api/v1/user/signout
 
@@ -318,7 +322,7 @@
 
 ### POST /api/v1/admin/notif/post
 
-通知功能占位端点（init 阶段）。需要认证，且要求 `admin` 角色。
+通知功能占位端点（init 阶段）。需要认证，且要求 `admin` 角色。当前版本暂未开放（路由暂未注册）。
 
 响应：
 

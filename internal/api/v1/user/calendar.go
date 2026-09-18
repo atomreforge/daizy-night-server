@@ -8,6 +8,9 @@ import (
 
 // ResponseUserCalendarGet renders a timetable without leaking internal ids or
 // soft-delete bookkeeping (explicit mapping, same idea as InfoMe).
+type RequestUserCalendarPut struct {
+	model.CalendarPutBody
+}
 
 type ResponseUserCalendarGet struct {
 	Roaming    model.Roaming              `json:"roaming"`
