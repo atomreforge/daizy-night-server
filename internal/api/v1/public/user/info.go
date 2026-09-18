@@ -17,4 +17,3 @@ type ResponseAnyInfoGet struct {
 	RegisterTime time.Time   `json:"register_time"`
 	Role         consts.Role `json:"role"`
 }
-

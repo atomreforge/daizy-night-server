@@ -6,6 +6,12 @@
 *.dylib
 *.test
 *.out
+dnserver-*
+dnserver-x64-windows.exe
+dnserver-x64-linux
+dnserver-x64-darwin
+dnserver-arm64-darwin
+dnserver-arm64-linux
 
 # IDE
 .idea/

@@ -137,9 +137,13 @@ func (h *HandlerComplex) HandleCalendarPut(ctx *echo.Context) error {
 	}
 
 	// the owner comes from the token, never from the request body
-	cal := model.CalendarTable{UserID: claims.Uid}
+	cal := model.CalendarTable{
+		UserID:  claims.Uid,
+		Roaming: b.Roaming,
+	}
 	for _, it := range b.Records {
 		cal.Records = append(cal.Records, model.CalendarItem{
+			Roaming:  it.Roaming,
 			Weekday:  it.Weekday,
 			StartMin: it.StartMin,
 			EndMin:   it.EndMin,

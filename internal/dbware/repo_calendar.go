@@ -69,6 +69,17 @@ func (r *RepoCalendar) UpdateCalendar(b *model.CalendarTable) error {
 			return err
 		}
 
+		// persist the calendar-level roaming columns: the item swap below
+		// never touches the calendar row itself, and PUT is a full
+		// replacement, so omitted roaming must clear the stored values
+		// (map updates write zero values, struct updates would skip them).
+		if err := tx.Model(&cur).Updates(map[string]any{
+			"description": b.Description,
+			"annotation":  b.Annotation,
+		}).Error; err != nil {
+			return err
+		}
+
 		// swap the stored items for b.Records
 		if err := tx.Where("calendar_id = ?", cur.CalendarID).Delete(&model.CalendarItem{}).Error; err != nil {
 			return err

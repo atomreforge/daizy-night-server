@@ -52,6 +52,7 @@ type SignoutBody struct {
 
 // CalendarItemBody is one weekly slot of a calendar-upsert request.
 type CalendarItemBody struct {
+	Roaming  Roaming      `json:"roaming"`
 	Weekday  time.Weekday `json:"weekday"`
 	StartMin uint         `json:"start_min"`
 	EndMin   uint         `json:"end_min"`
@@ -63,6 +64,7 @@ type CalendarItemBody struct {
 // claims (like SignoutBody.Uid), and the :username path segment is checked
 // against the identity as well.
 type CalendarPutBody struct {
+	Roaming Roaming            `json:"roaming"`
 	UserID  uint               `json:"-"`
 	Records []CalendarItemBody `json:"records"`
 }
