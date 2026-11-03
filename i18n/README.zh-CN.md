@@ -37,7 +37,7 @@
 ## 相关仓库
 
 - **服务端**（本仓库）：<https://github.com/atomreforge/daizy-night-server>
-- **计划客户端**：<https://github.com/atomreforge/daizy-night-app>
+- **客户端**：<https://github.com/atomreforge/nilset>
 - **测试用 CLI 客户端**：<https://github.com/Syerain/dnappcli>
 
 ## 快速开始
