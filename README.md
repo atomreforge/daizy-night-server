@@ -37,7 +37,7 @@ The project name _Daizy Night_ is a homophone of _The Hazy Night_.
 ## Repositories
 
 - **Server** (this repository): <https://github.com/atomreforge/daizy-night-server>
-- **Scheduled client**: <https://github.com/atomreforge/daizy-night-app>
+- **Android App**: <https://github.com/atomreforge/nilset>
 - **CLI test client**: <https://github.com/Syerain/dnappcli>
 
 ## Quick Start
