@@ -42,3 +42,9 @@ type InterfaceRepoCalendar interface {
 	RemoveCalendarByUid(uid uint) error
 	RemoveCalendarByModel(b *model.CalendarTable) error
 }
+
+type InterfaceRepoMarkdown interface {
+	CreateItem(md model.Markdown) error
+	Updates(md model.Markdown) error
+	GetMdByMdid(mdid uint) (model.Markdown, error)
+}

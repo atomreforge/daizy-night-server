@@ -36,6 +36,7 @@ const (
 // db
 const (
 	ExprRegistercodeRecord expression = "Record-Registercode"
+	ExprMarkdownItem       expression = "Record-Markdown-Item"
 )
 
 // http response text

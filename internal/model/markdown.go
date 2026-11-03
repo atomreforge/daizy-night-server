@@ -7,8 +7,10 @@ import (
 
 type Markdown struct {
 	gorm.Model
+	Mdid    uint `gorm:"uniqueIndex"`
 	Title   string
 	Content string
+	Type    consts.MarkdownItem
 }
 
 type Notification struct {

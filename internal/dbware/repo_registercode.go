@@ -60,26 +60,30 @@ func (r *RepoRegistercode) Used(rawHex model.RegistercodeRawHex, value bool, use
 }
 
 // fully update.
-func (r *RepoRegistercode) Updates(record model.RegistercodeRecord) error {
-	rec, err := r.GetRecordByRegistercode(record.RawHex)
+func (r *RepoRegistercode) Updates(newrec model.RegistercodeRecord) error {
+	rec, err := r.GetRecordByRegistercode(newrec.RawHex)
 	if err != nil {
 		return err
 	}
-	record.ID = rec.ID
+	newrec.ID = rec.ID
 
 	return r.pDB.DB().Transaction(func(tx *gorm.DB) error {
-		return tx.Model(&rec).Save(&record).Error
+		return tx.Model(&rec).Save(&newrec).Error
 	})
 }
 
 func (r *RepoRegistercode) GetRecordByRegistercode(rawHex model.RegistercodeRawHex) (*model.RegistercodeRecord, error) {
 	var rec model.RegistercodeRecord
-	result := r.pDB.DB().Where("raw_hex = ?", string(rawHex)).First(&rec)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, errs.BuildErrDbRecord(errs.DbRecordNotFound, http.StatusInternalServerError, string(consts.ExprRegistercodeRecord))
+	res := r.pDB.DB().Where("raw_hex = ?", string(rawHex)).First(&rec)
+	if res.Error != nil {
+		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
+			return nil, errs.BuildErrDbRecord(
+				errs.DbRecordNotFound,
+				http.StatusInternalServerError,
+				string(consts.ExprRegistercodeRecord),
+			)
 		}
-		return nil, result.Error
+		return nil, res.Error
 	}
 	return &rec, nil
 }
