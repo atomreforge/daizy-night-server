@@ -21,7 +21,7 @@ func NewRepoMarkdown(pDB abstract.InterfaceProviderDB) *RepoMarkdown {
 	return &RepoMarkdown{pDB: pDB}
 }
 
-func (r *RepoMarkdown) CreateItem(md *model.Markdown) error {
+func (r *RepoMarkdown) CreateItem(md model.Markdown) error {
 	return r.pDB.DB().Transaction(func(tx *gorm.DB) error {
 		if tx.Create(md).Error != nil {
 			if errors.Is(tx.Error, gorm.ErrDuplicatedKey) {
@@ -52,18 +52,18 @@ func (r *RepoMarkdown) Updates(md model.Markdown) error {
 	})
 }
 
-func (r *RepoMarkdown) GetMdByMdid(mdid uint) (*model.Markdown, error) {
+func (r *RepoMarkdown) GetMdByMdid(mdid uint) (model.Markdown, error) {
 	var md model.Markdown
 	res := r.pDB.DB().Where("mdid = ?", mdid).First(&md)
 	if res.Error != nil {
 		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-			return nil, errs.BuildErrDbRecord(
+			return model.Markdown{}, errs.BuildErrDbRecord(
 				errs.DbRecordNotFound,
 				http.StatusInternalServerError,
 				string(consts.ExprMarkdownItem),
 			)
 		}
-		return nil, res.Error
+		return model.Markdown{}, res.Error
 	}
-	return &md, nil
+	return md, nil
 }

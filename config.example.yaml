@@ -31,3 +31,6 @@ security:
   jwtAccessTokenExpireTime: 15m
   jwtRefreshTokenExpireTime: 168h
   jwtRevokedTokensRetainTime: 72h
+  tlsEnabled: true
+  tlsCertFile: "cert.pem"
+  tlsKeyFile: "key.pem"

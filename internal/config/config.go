@@ -51,5 +51,10 @@ type Config struct {
 
 		// revoked tokens will be cleared after then
 		JwtRevokedTokensRetainTime time.Duration `mapstructure:"jwtRevokedTokensRetainTime" validate:"required" default:"72h"`
+
+		// https
+		TlsEnabled  bool   `mapstructure:"tlsEnabled" default:"false"`
+		TlsCertfile string `mapstructure:"tlsCertfile" default:"cert.pem" validate:"required_if=TlsEnabled true"`
+		TlsKeyfile  string `mapstructure:"tlsKeyfile" default:"key.pem" validate:"required_if=TlsEnabled true"`
 	} `mapstructure:"security"`
 }

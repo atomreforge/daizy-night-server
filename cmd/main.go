@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log/slog"
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	abstract "github.com/atomreforge/daizy-night-server/internal/abstract/interface"
 	"github.com/atomreforge/daizy-night-server/internal/config"
@@ -156,14 +159,36 @@ func (s *Server) Run() error {
 	}()
 
 	addrport := net.JoinHostPort(s.cfg.Http.Address, fmt.Sprintf("%d", s.cfg.Http.Port))
-	slog.Info("Listening on " + addrport)
 
-	err := s.e.Start(addrport)
-	if err != nil && !errors.Is(err, http.ErrServerClosed) {
-		return err
+	if s.cfg.Security.TlsEnabled {
+		slog.Info("TLS enabled, serving HTTPS",
+			"cert", s.cfg.Security.TlsCertfile,
+			"key", s.cfg.Security.TlsKeyfile)
+		sc := echo.StartConfig{Address: addrport}
+		ctx, cancel := signal.NotifyContext(
+			context.Background(),
+			os.Interrupt,
+			syscall.SIGTERM)
+		defer cancel()
+		err := sc.StartTLS(
+			ctx,
+			s.e,
+			s.cfg.Security.TlsCertfile,
+			s.cfg.Security.TlsKeyfile)
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
+		slog.Info("Server shut down gracefully")
+		return nil
+	} else {
+		slog.Info("Listening on " + addrport)
+		err := s.e.Start(addrport)
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
+		slog.Info("Server shut down gracefully")
+		return nil
 	}
-	slog.Info("Server shut down gracefully")
-	return nil
 }
 
 func formatLine(

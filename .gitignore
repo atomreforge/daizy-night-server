@@ -42,4 +42,6 @@ data.db
 /local
 /etc
 /test
+key.pem
+cert.pem
 
