@@ -123,5 +123,22 @@ func (e *ErrConnDb) Error() string {
 }
 func (e *ErrConnDb) StatusCode() int { return e.Http }
 func (e *ErrConnDb) Respond() string {
-	return fmt.Sprintf("error with db.")
+	return "error with db."
+}
+
+type ErrInternalServiceCall struct {
+	Type errType
+
+	// shouldnt be exposed to user.
+	//Http  int
+	Field string
+}
+
+func (e *ErrInternalServiceCall) Error() string {
+	return fmt.Sprintf("error in internal service call; details::%s", e.Type.Say())
+}
+
+// func (e *ErrInternalServiceCall) StatusCode() int { return e.Http }
+func (e *ErrInternalServiceCall) Respond() string {
+	return "internal error"
 }

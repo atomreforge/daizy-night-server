@@ -21,7 +21,7 @@ import (
 func ValidateRegisterParams(b model.RegisterBody) error {
 	// username
 	if _, err := validateNonNull(b.Username); err != nil {
-		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprUsername), string(consts.ExprBlank))
+		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprUsername), string(consts.ExprValueBlank))
 	}
 
 	if _, err := validateCharValid(b.Username); err != nil {
@@ -33,7 +33,7 @@ func ValidateRegisterParams(b model.RegisterBody) error {
 
 	// nickname
 	if _, err := validateNonNull(b.Nickname); err != nil {
-		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprNickname), string(consts.ExprBlank))
+		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprNickname), string(consts.ExprValueBlank))
 	}
 	if _, err := validateLengthValid(b.Nickname, 1, 15); err != nil {
 		return errs.BuildErrValidation(errs.ValidationKeyInvalidLength, http.StatusBadRequest, string(consts.ExprNickname), b.Nickname)
@@ -41,7 +41,7 @@ func ValidateRegisterParams(b model.RegisterBody) error {
 
 	// password
 	if _, err := validateNonNull(b.Password); err != nil {
-		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprPassword), string(consts.ExprBlank))
+		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprPassword), string(consts.ExprValueBlank))
 	}
 	if _, err := validateLengthValid(b.Password, 6, 128); err != nil {
 		return errs.BuildErrValidation(errs.ValidationKeyInvalidLength, http.StatusBadRequest, string(consts.ExprPassword), b.Password)
@@ -65,10 +65,10 @@ func ValidateLoginParams(b *model.LoginBody) error {
 	case consts.LoginLegacy:
 		//
 		if _, err := validateNonNull(b.Username); err != nil {
-			return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprUsername), string(consts.ExprBlank))
+			return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprUsername), string(consts.ExprValueBlank))
 		}
 		if _, err := validateNonNull(b.Password); err != nil {
-			return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprPassword), string(consts.ExprBlank))
+			return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprPassword), string(consts.ExprValueBlank))
 		}
 
 	case consts.LoginGithub:
@@ -92,17 +92,17 @@ func validateLengthValid(s string, min int, max int) (bool, error) {
 
 func validateNonNull(v any) (bool, error) {
 	if v == nil {
-		return false, errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, "", string(consts.ExprNull))
+		return false, errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, "", string(consts.ExprValueNull))
 	}
 	rv := reflect.ValueOf(v)
 	switch rv.Kind() {
 	case reflect.String:
 		if rv.String() == "" {
-			return false, errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, "", string(consts.ExprBlank))
+			return false, errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, "", string(consts.ExprValueBlank))
 		}
 	case reflect.Slice, reflect.Map:
 		if rv.Len() == 0 {
-			return false, errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, "", string(consts.ExprBlank))
+			return false, errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, "", string(consts.ExprValueBlank))
 		}
 	}
 	return true, nil
@@ -122,7 +122,7 @@ func validateCharValid(s string) (bool, error) {
 
 func ValidateFormatRegistercode(c model.RegistercodeRawHex) (bool, error) {
 	if c == "" {
-		return false, errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprRegistercode), string(consts.ExprNull))
+		return false, errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprRegistercode), string(consts.ExprValueNull))
 	}
 	i := strings.LastIndex(string(c), ".")
 	if i <= 0 || i == len(c)-1 {
@@ -151,7 +151,7 @@ func ValidateSignoutParams(b *model.SignoutBody) error {
 	}
 
 	if _, err := validateNonNull(b.RefreshToken); err != nil {
-		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.JsonExprRefreshToken), string(consts.ExprBlank))
+		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.JsonExprRefreshToken), string(consts.ExprValueBlank))
 	}
 
 	return nil
@@ -162,7 +162,7 @@ func ValidateSignoutParams(b *model.SignoutBody) error {
 // miss (401).
 func ValidateRefreshParams(refreshToken string) error {
 	if _, err := validateNonNull(refreshToken); err != nil {
-		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.JsonExprRefreshToken), string(consts.ExprBlank))
+		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.JsonExprRefreshToken), string(consts.ExprValueBlank))
 	}
 	return nil
 }
@@ -194,7 +194,7 @@ func ValidateCalendarPutParams(b *model.CalendarPutBody) error {
 			return errs.BuildErrValidation(errs.ValidationKeyBadFormat, http.StatusBadRequest, string(consts.JsonExprStartMin)+"::"+string(consts.JsonExprEndMin), fmt.Sprintf("%d..%d", it.StartMin, it.EndMin))
 		}
 		if _, err := validateNonNull(it.Title); err != nil {
-			return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.JsonExprTitle), string(consts.ExprBlank))
+			return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.JsonExprTitle), string(consts.ExprValueBlank))
 		}
 		if _, err := validateLengthValid(it.Title, 1, 255); err != nil {
 			return errs.BuildErrValidation(errs.ValidationKeyInvalidLength, http.StatusBadRequest, string(consts.JsonExprTitle), it.Title)

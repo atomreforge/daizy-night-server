@@ -48,3 +48,11 @@ type InterfaceRepoMarkdown interface {
 	Updates(md model.Markdown) error
 	GetMdByMdid(mdid uint) (model.Markdown, error)
 }
+
+type InterfaceRepoNotification interface {
+	CreateItem(n model.Notification) error
+	RemoveItem(nid uint) error
+	GetItemByNid(nid uint) (model.Notification, error)
+	UpdateItem(n model.Notification) error
+	GetLatestNotificationNid() (uint, error)
+}

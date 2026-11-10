@@ -83,16 +83,18 @@ func New(cfg *config.Config) (*Server, error) {
 	repoToken := dbware.NewRepoToken(pDB, cfg)
 	repoCalendar := dbware.NewRepoCalendar(pDB)
 	repoRegcode := dbware.NewRepoRegistercode(pDB)
+	repoNotification := dbware.NewRepoNotification(pDB)
 
 	// service provider
 	pSvcCode := service.NewServiceCode(repoRegcode)
 	pSvcUser := service.NewServiceUser(repoUser, repoToken, repoCalendar, pSvcCode, pCrypto)
 	pSvcAdmin := service.NewServiceAdmin()
 	pSvcHealth := service.NewServiceHealth(pDB)
-	s := service.NewServiceComplex(pSvcUser, pSvcCode, pSvcAdmin, pSvcHealth)
+	pSvcNotification := service.NewServiceNotification(repoNotification)
+	s := service.NewServiceComplex(pSvcUser, pSvcCode, pSvcAdmin, pSvcHealth, pSvcNotification)
 
 	// handler
-	h := handler.NewHandlerComplex(s.ServiceUser, s.ServiceCode, s.ServiceAdmin, s.ServiceHealth)
+	h := handler.NewHandlerComplex(s.ServiceUser, s.ServiceCode, s.ServiceAdmin, s.ServiceHealth, s.ServiceNotification)
 
 	// Echo router
 	e := router.New(h, pCrypto, cfg)

@@ -2,11 +2,11 @@ package consts
 
 type LevelNotificationEmergency string
 type LevelNotificationImportance int
-type LevelNotificationAddtional string
+type LevelNotificationPostfix string
 type Levels struct {
 	Emergence  LevelNotificationEmergency
 	Importance LevelNotificationImportance
-	Addtional  LevelNotificationAddtional
+	Postfix    LevelNotificationPostfix
 }
 
 // msg that levels A will trigger client intime action.

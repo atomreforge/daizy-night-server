@@ -168,7 +168,7 @@ func (s *ServiceUser) Login(b *model.LoginBody) (success bool, accessToken strin
 				return true, accessToken, refreshToken, nil
 
 			}
-			return false, "", "", errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprUsername), string(consts.ExprNull))
+			return false, "", "", errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprUsername), string(consts.ExprValueNull))
 		}
 	// under constructing ..
 	case consts.LoginGithub:

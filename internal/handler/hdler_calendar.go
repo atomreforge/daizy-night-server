@@ -33,6 +33,7 @@ func calendarClaims(ctx *echo.Context) (*model.JwtAccessTokenPayload, error) {
 func (h *HandlerComplex) HandleCalendarGet(ctx *echo.Context) error {
 	utils.AppendCallChain(ctx, string(consts.ModExprHandlerCalendar))
 
+	// domain-public does not req auth and returns without owner's roaming info
 	d := GetDomain(ctx)
 	switch d {
 	// no Attr-Roaming in public domain

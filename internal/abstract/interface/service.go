@@ -35,3 +35,15 @@ type InterfaceServiceAdmin interface {
 type InterfaceServiceHealth interface {
 	HealthCheckDb() (bool, error)
 }
+
+type InterfaceServiceNotification interface {
+	CreateNotification(n model.Notification) error
+	RemoveNotification(nid uint) error
+	GetNotificationSingelByNid(nid uint) (*model.Notification, error)
+	GetNotificationBatchByNid(nidBegin uint, nidEnd uint) (*[]model.Notification, error)
+	UpdateNotification(n model.Notification) error
+	GetLatestNotificationNid() (uint, error)
+
+	// post a notif to clients after created.
+	PostNotification(n *model.Notification) error
+}

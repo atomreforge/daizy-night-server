@@ -4,8 +4,8 @@ type expression string
 
 // ~
 const (
-	ExprNull         expression = "$NULL"
-	ExprBlank        expression = "$BLANK"
+	ExprValueNull    expression = "$NULL"
+	ExprValueBlank   expression = "$BLANK"
 	ExprIndetermined expression = "$INDETERMINED"
 
 	ExprUnreachableCase    expression = "unreachable case contacted"
@@ -37,6 +37,8 @@ const (
 const (
 	ExprRegistercodeRecord expression = "Record-Registercode"
 	ExprMarkdownItem       expression = "Record-Markdown-Item"
+	ExprCalendarTable      expression = "Record-Calendar-Table"
+	ExprNotificationItem   expression = "Record-Notification-Item"
 )
 
 // http response text
@@ -59,6 +61,7 @@ const (
 // json
 // only expressions in the json body can be place here.
 const (
+	// user
 	JsonExprAtomid       expression = "atomid"
 	JsonExprUsername     expression = "username"
 	JsonExprNickname     expression = "nickname"
@@ -68,15 +71,21 @@ const (
 	JsonExprAccessToken  expression = "access_token"
 	JsonExprRefreshToken expression = "refresh_token"
 	JsonExprRole         expression = "role"
-	JsonExprTraceid      expression = "traceid"
-	JsonExprCallChain    expression = "call_chain"
 
+	// trace
+	JsonExprTraceid   expression = "traceid"
+	JsonExprCallChain expression = "call_chain"
+
+	// calendar
 	JsonExprCalendarID expression = "calendar_id"
 	JsonExprRecords    expression = "records"
 	JsonExprWeekday    expression = "weekday"
 	JsonExprStartMin   expression = "start_min"
 	JsonExprEndMin     expression = "end_min"
 	JsonExprTitle      expression = "title"
+
+	// notification
+	JsonExprNid expression = "nid"
 )
 
 // process
@@ -97,11 +106,13 @@ const (
 	ModExprHandlerRefresh  expression = "Handler-Refresh"
 	ModExprHandlerSignout  expression = "Handler-Signout"
 	ModExprHandlerCalendar expression = "Handler-Calendar"
+	ModExprHandlerNotif    expression = "Handler-Notification"
 
 	ModExprService      expression = "service"
 	ModExprServiceUser  expression = "Service-User"
 	ModExprServiceToken expression = "Service-Token"
 	ModExprServiceAdmin expression = "Service-Admin"
+	ModExprServiceNotif expression = "Service-Notification"
 
 	ModExprMiddlware            expression = "middleware"
 	ModExprMiddlwareAuthen      expression = "Middleware-Authen"
@@ -109,7 +120,7 @@ const (
 	ModExprMiddlwareRateLimiter expression = "Middleware-RateLimiter"
 	ModExprMiddlwareRoleControl expression = "Middleware-RoleControl"
 
-	ModExprUtils expression = "utils"
+	ModExprUtils expression = "Mod-Utils"
 )
 
 // type of request
@@ -124,6 +135,7 @@ const (
 	ExprReqCalendarGet    expression = "Request-CalendarGet"
 	ExprReqCalendarPut    expression = "Request-CalendarPut"
 	ExprReqCalendarDelete expression = "Request-CalendarDelete"
+	ExprReqNotifGetSingle expression = "Request-NotificationGetSingle"
 )
 
 // router domain

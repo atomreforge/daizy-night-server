@@ -35,3 +35,7 @@ func BuildErrJwtToken(errtype ErrType, http int) *ErrJwtToken {
 func BuildErrConnDb(errtype ErrType, http int) *ErrConnDb {
 	return &ErrConnDb{Type: errtype, Http: http}
 }
+
+func BuildErrInternalServiceCall(errtype ErrType) *ErrInternalServiceCall {
+	return &ErrInternalServiceCall{Type: errtype}
+}

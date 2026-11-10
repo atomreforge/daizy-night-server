@@ -19,6 +19,7 @@ const (
 	ValidationKeyInvalidChar
 	ValidationKeyDuplicatedValue
 	ValidationKeyBadFormat
+	ValidationKeyBadValue
 
 	ValidationCryptoUnexpectedSigningMethod
 
@@ -81,6 +82,7 @@ var errorMessages = map[errType]string{
 	ValidationKeyInvalidChar:     "invalid chars",
 	ValidationKeyDuplicatedValue: "duplicated value",
 	ValidationKeyBadFormat:       "key bad format",
+	ValidationKeyBadValue:        "key bad value",
 
 	RegistercodeFormat:              "invalid registercode format",
 	RegistercodeFormatInvalidLength: "registercode length should be shorter than 15 chars",
