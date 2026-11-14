@@ -3,6 +3,7 @@ package dbware
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	abstract "github.com/atomreforge/daizy-night-server/internal/abstract/interface"
 	"github.com/atomreforge/daizy-night-server/internal/consts"
@@ -46,6 +47,52 @@ func (r *RepoNotification) RemoveItem(nid uint) error {
 		return tx.Where("nid = ?", nid).
 			Delete(&model.Notification{}).Error
 	})
+}
+
+// PostItem stamps a notification as posted: `PostBy` records the acting
+// publisher's uid and `PostAt` the unix timestamp. Unknown or soft-deleted
+// nids map to a 404-classified error.
+func (r *RepoNotification) PostItem(nid uint, postBy uint) error {
+	res := r.pDB.DB().Model(&model.Notification{}).
+		Where("nid = ?", nid).
+		Updates(map[string]any{
+			"post_by": postBy,
+			"post_at": uint(time.Now().Unix()),
+		})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return errs.BuildErrDbRecord(
+			errs.DbRecordNotFound,
+			http.StatusNotFound,
+			string(consts.ExprNotificationItem),
+		)
+	}
+	return nil
+}
+
+// WithdrawItem unpublishes a posted notification by clearing its post stamp
+// (post_by/post_at back to zero); the row itself stays. Unknown or
+// soft-deleted nids map to a 404-classified error.
+func (r *RepoNotification) WithdrawItem(nid uint) error {
+	res := r.pDB.DB().Model(&model.Notification{}).
+		Where("nid = ?", nid).
+		Updates(map[string]any{
+			"post_by": 0,
+			"post_at": 0,
+		})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return errs.BuildErrDbRecord(
+			errs.DbRecordNotFound,
+			http.StatusNotFound,
+			string(consts.ExprNotificationItem),
+		)
+	}
+	return nil
 }
 
 func (r *RepoNotification) UpdateItem(n model.Notification) error {

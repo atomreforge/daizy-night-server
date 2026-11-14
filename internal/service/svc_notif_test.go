@@ -170,3 +170,47 @@ func TestGetSingleRemovedNidIs404(t *testing.T) {
 		t.Fatalf("status = %d, want 404", recErr.StatusCode())
 	}
 }
+
+// Post stamps post_by/post_at through the service layer; withdraw clears
+// them again while the notification itself stays available.
+func TestPostAndWithdrawLifecycle(t *testing.T) {
+	svc := newNotifSvcEnv(t)
+	nids := seedNotifs(t, svc, 2)
+
+	if err := svc.PostNotification(nids[0], 42); err != nil {
+		t.Fatalf("post: %v", err)
+	}
+	posted, err := svc.GetNotificationSingleByNid(nids[0])
+	if err != nil {
+		t.Fatalf("get posted: %v", err)
+	}
+	if posted.PostBy != 42 || posted.PostAt == 0 {
+		t.Fatalf("post stamp missing: post_by=%d post_at=%d", posted.PostBy, posted.PostAt)
+	}
+
+	if err := svc.WithdrawNotification(nids[0]); err != nil {
+		t.Fatalf("withdraw: %v", err)
+	}
+	withdrawn, err := svc.GetNotificationSingleByNid(nids[0])
+	if err != nil {
+		t.Fatalf("get withdrawn: %v", err)
+	}
+	if withdrawn.PostBy != 0 || withdrawn.PostAt != 0 {
+		t.Fatalf("withdraw did not clear stamp: post_by=%d post_at=%d", withdrawn.PostBy, withdrawn.PostAt)
+	}
+}
+
+// Delete soft-deletes: the nid 404s afterwards.
+func TestDeleteNotificationSoftDeletes(t *testing.T) {
+	svc := newNotifSvcEnv(t)
+	nids := seedNotifs(t, svc, 2)
+
+	if err := svc.DeleteNotification(nids[0]); err != nil {
+		t.Fatalf("delete: %v", err)
+	}
+	_, err := svc.GetNotificationSingleByNid(nids[0])
+	recErr, ok := errs.Easx[*errs.ErrDbRecord](err)
+	if !ok || recErr.StatusCode() != 404 {
+		t.Fatalf("expected 404 ErrDbRecord after delete, got %v", err)
+	}
+}

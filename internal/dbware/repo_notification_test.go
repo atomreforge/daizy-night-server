@@ -212,3 +212,67 @@ func TestUpdateItemPreservesServerOwnedColumns(t *testing.T) {
 		t.Fatalf("post_by changed: %d -> %d", origPostBy, got.PostBy)
 	}
 }
+
+// PostItem stamps post_by with the publisher's uid and post_at with the
+// unix time.
+func TestPostItemStampsPostByAndPostAt(t *testing.T) {
+	r := newNotifTestEnv(t)
+	nid := mustCreateNotif(t, r, "draft")
+
+	before := time.Now().Unix()
+	if err := r.PostItem(nid, 42); err != nil {
+		t.Fatalf("post: %v", err)
+	}
+
+	got, err := r.GetItemByNid(nid)
+	if err != nil {
+		t.Fatalf("get: %v", err)
+	}
+	if got.PostBy != 42 {
+		t.Fatalf("post_by = %d, want 42", got.PostBy)
+	}
+	if got.PostAt < uint(before) {
+		t.Fatalf("post_at = %d, want >= %d", got.PostAt, before)
+	}
+}
+
+func TestPostItemUnknownNidIs404(t *testing.T) {
+	r := newNotifTestEnv(t)
+
+	err := r.PostItem(99, 1)
+	recErr, ok := errs.Easx[*errs.ErrDbRecord](err)
+	if !ok || recErr.StatusCode() != 404 {
+		t.Fatalf("expected 404 ErrDbRecord, got %v", err)
+	}
+}
+
+// WithdrawItem clears the post stamp; the row itself stays retrievable.
+func TestWithdrawItemClearsStamp(t *testing.T) {
+	r := newNotifTestEnv(t)
+	nid := mustCreateNotif(t, r, "posted")
+
+	if err := r.PostItem(nid, 7); err != nil {
+		t.Fatalf("post: %v", err)
+	}
+	if err := r.WithdrawItem(nid); err != nil {
+		t.Fatalf("withdraw: %v", err)
+	}
+
+	got, err := r.GetItemByNid(nid)
+	if err != nil {
+		t.Fatalf("get: %v", err)
+	}
+	if got.PostBy != 0 || got.PostAt != 0 {
+		t.Fatalf("post stamp not cleared: post_by=%d post_at=%d", got.PostBy, got.PostAt)
+	}
+}
+
+func TestWithdrawItemUnknownNidIs404(t *testing.T) {
+	r := newNotifTestEnv(t)
+
+	err := r.WithdrawItem(5)
+	recErr, ok := errs.Easx[*errs.ErrDbRecord](err)
+	if !ok || recErr.StatusCode() != 404 {
+		t.Fatalf("expected 404 ErrDbRecord, got %v", err)
+	}
+}

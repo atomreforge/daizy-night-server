@@ -61,9 +61,7 @@ type InterfaceServiceNotification interface {
 	// get the latest `nid` from repo
 	GetLatestNotificationNid() (uint, error)
 
-	// post a notif to clients after created.
-	PostNotification(n *model.Notification) error
-
-	// upload and post a single notif
-	//UploadAndPostNotification(n *model.Notification) error
+	// post a notif to clients after created; `postBy` is the acting
+	// publisher's uid taken from the jwt claims
+	PostNotification(nid uint, postBy uint) error
 }

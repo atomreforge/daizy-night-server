@@ -54,4 +54,8 @@ type InterfaceRepoNotification interface {
 	GetLatestNotificationNid() (uint, error)
 	// closed range [nidBegin, nidEnd], ascending by nid; never a nil slice
 	GetNotificationBatch(nidBegin, nidEnd uint) (*[]model.Notification, error)
+	// stamp post_by/post_at (publish); unknown or removed nid -> 404-class error
+	PostItem(nid uint, postBy uint) error
+	// clear post_by/post_at (unpublish); unknown or removed nid -> 404-class error
+	WithdrawItem(nid uint) error
 }

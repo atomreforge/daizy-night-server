@@ -10,12 +10,12 @@ import (
 	mid "github.com/atomreforge/daizy-night-server/internal/middleware"
 	"github.com/atomreforge/daizy-night-server/internal/model"
 	"github.com/atomreforge/daizy-night-server/internal/utils"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v5"
 
 	v1p "github.com/atomreforge/daizy-night-server/internal/api/v1/public/user"
 )
 
-// havent ok;
 // req admin
 func (h *HandlerComplex) HandleNotificationCreate(ctx *echo.Context) error {
 	// trace
@@ -48,16 +48,26 @@ func (h *HandlerComplex) HandleNotificationCreate(ctx *echo.Context) error {
 	return mid.RespondObj(ctx, http.StatusOK, v1p.ResponseCreateNotification{Message: string(consts.JsonExprMessageOk)})
 }
 
-// havent ok;
 // req admin
 func (h *HandlerComplex) HandleNotificationDelete(ctx *echo.Context) error {
 	// trace
 	utils.AppendCallChain(ctx, string(consts.ModExprHandlerNotif))
+	utils.Layer(ctx).Info(string(consts.ExprReqNotifDelete))
 
 	// build req body
 	req, err := Bind[v1p.RequestDeleteNotification](ctx)
 	if err != nil {
 		return err
+	}
+
+	// validate: nid is a strictly positive integer
+	if req.Nid == 0 {
+		return errs.BuildErrValidation(
+			errs.ValidationKeyNull,
+			http.StatusBadRequest,
+			string(consts.JsonExprNid),
+			string(consts.ExprValueNull),
+		)
 	}
 
 	// formal repo ops
@@ -70,11 +80,11 @@ func (h *HandlerComplex) HandleNotificationDelete(ctx *echo.Context) error {
 	return mid.RespondObj(ctx, http.StatusOK, v1p.ResponseDeleteNotification{Message: string(consts.JsonExprMessageOk)})
 }
 
-// havent ok;
 // req admin
 func (h *HandlerComplex) HandleNotificationUpdate(ctx *echo.Context) error {
 	// trace
 	utils.AppendCallChain(ctx, string(consts.ModExprHandlerNotif))
+	utils.Layer(ctx).Info(string(consts.ExprReqNotifUpdate))
 
 	// build req body
 	req, err := Bind[v1p.RequestUpdateNotification](ctx)
@@ -112,14 +122,26 @@ func (h *HandlerComplex) HandleNotificationUpdate(ctx *echo.Context) error {
 	return mid.RespondObj(ctx, http.StatusOK, v1p.ResponseUpdateNotification{Message: string(consts.JsonExprMessageOk)})
 }
 
+// req admin
 func (h *HandlerComplex) HandleNotificationWithdraw(ctx *echo.Context) error {
 	// trace
 	utils.AppendCallChain(ctx, string(consts.ModExprHandlerNotif))
+	utils.Layer(ctx).Info(string(consts.ExprReqNotifWithdraw))
 
 	// build req body
 	req, err := Bind[v1p.RequestWithdrawNotification](ctx)
 	if err != nil {
 		return err
+	}
+
+	// validate: nid is a strictly positive integer
+	if req.Nid == 0 {
+		return errs.BuildErrValidation(
+			errs.ValidationKeyNull,
+			http.StatusBadRequest,
+			string(consts.JsonExprNid),
+			string(consts.ExprValueNull),
+		)
 	}
 
 	// repo ops
@@ -230,7 +252,6 @@ func (h *HandlerComplex) HandleNotificationGetBatchUpdate(ctx *echo.Context) err
 	return mid.RespondObj(ctx, http.StatusOK, resp)
 }
 
-// havent ok;
 // req admin permission;
 func (h *HandlerComplex) HandleNotificationPost(ctx *echo.Context) error {
 	// trace
@@ -243,15 +264,28 @@ func (h *HandlerComplex) HandleNotificationPost(ctx *echo.Context) error {
 		return err
 	}
 
-	// get notif by nid
-	n, err := h.serviceNotification.GetNotificationSingleByNid(req.Nid)
+	// validate: nid is a strictly positive integer
+	if req.Nid == 0 {
+		return errs.BuildErrValidation(
+			errs.ValidationKeyNull,
+			http.StatusBadRequest,
+			string(consts.JsonExprNid),
+			string(consts.ExprValueNull),
+		)
+	}
+
+	// acting publisher from the jwt claims
+	token, err := echo.ContextGet[*jwt.Token](ctx, string(consts.CtxExprKeyJWT))
 	if err != nil {
 		return err
 	}
+	claims, ok := token.Claims.(*model.JwtAccessTokenPayload)
+	if !ok {
+		return errs.BuildUnauthorized("failed to parse token claims")
+	}
 
-	// call service
-	err = h.serviceNotification.PostNotification(n)
-	if err != nil {
+	// repo ops: stamp post_by/post_at
+	if err := h.serviceNotification.PostNotification(req.Nid, claims.Uid); err != nil {
 		return err
 	}
 

@@ -148,7 +148,7 @@ func TestRotateRefreshTokenRevokesUsedToken(t *testing.T) {
 	if err == nil {
 		t.Fatal("replay of used token unexpectedly succeeded")
 	}
-	if errapp, ok := errs.Easx[*errs.ErrUserLogin](err); !ok || errapp.StatusCode() != 401 {
-		t.Fatalf("expected 401 ErrUserLogin on replay, got %v", err)
+	if errapp, ok := errs.Easx[*errs.ErrJwtToken](err); !ok || errapp.StatusCode() != 401 {
+		t.Fatalf("expected 401 ErrJwtToken on replay, got %v", err)
 	}
 }

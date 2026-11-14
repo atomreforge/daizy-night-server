@@ -36,33 +36,21 @@ func (s *ServiceNotification) UpdateNotification(n model.Notification) error {
 	return s.RepoNotification.UpdateItem(n)
 }
 
-// havent ok
-func (s *ServiceNotification) PostNotification(n *model.Notification) error {
-	// remb to override attrs `PostBy` and `PostAt`
-
-	// unsupported feature
-	return errs.BuildErrSupport(
-		errs.FeatureUnsupported,
-		http.StatusInternalServerError,
-	)
+// PostNotification stamps the notification as posted: `PostBy` records the
+// acting publisher's uid (from the jwt claims) and `PostAt` the unix time.
+func (s *ServiceNotification) PostNotification(nid uint, postBy uint) error {
+	return s.RepoNotification.PostItem(nid, postBy)
 }
 
-// havent ok
+// WithdrawNotification unpublishes a posted notification by clearing its
+// post stamp; the notification itself stays in the repo.
 func (s *ServiceNotification) WithdrawNotification(nid uint) error {
-	// unsupported feature
-	return errs.BuildErrSupport(
-		errs.FeatureUnsupported,
-		http.StatusInternalServerError,
-	)
+	return s.RepoNotification.WithdrawItem(nid)
 }
 
-// havent ok
+// DeleteNotification soft-deletes a notification; its nid is never reused.
 func (s *ServiceNotification) DeleteNotification(nid uint) error {
-	// unsupported feature
-	return errs.BuildErrSupport(
-		errs.FeatureUnsupported,
-		http.StatusInternalServerError,
-	)
+	return s.RepoNotification.RemoveItem(nid)
 }
 
 func (s *ServiceNotification) GetNotificationSingleByNid(nid uint) (*model.Notification, error) {

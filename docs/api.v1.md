@@ -380,21 +380,61 @@
 - `401` 认证失败
 - `403` 已认证但角色非 `admin`
 
-### POST /api/v1/admin/notif/post
+### 通知管理端点（`/api/v1/admin/notif/*`）
 
-将一条通知标记为已发布（占位实现）。需要认证，且要求 `admin` 角色。
+通知管理端点，均需要认证且要求 `admin` 角色。
 
-请求体：
+#### POST /api/v1/admin/notif/post
 
-| 字段 | 类型 | 说明 |
-|---|---|---|
-| `nid` | uint | 待发布通知的编号，必填正整数 |
+将一条通知标记为已发布：`post_by` 记录操作管理员的 uid，`post_at` 记录发布时间戳（unix 秒）。
 
-- 当前占位实现返回 `500` `{"message": "unsupported feature"}`（`nid` 无效或不存在时返回 `400`/`404`）
-- `401` 认证失败
-- `403` 已认证但角色非 `admin`
+请求体：`{"nid": uint}`（必填正整数）。
 
-> 通知管理操作 `notif/update`、`notif/delete`、`notif/withdraw` 已定义但尚未注册路由。
+- `200` `{"message": "ok"}`
+- `400` `nid` 缺失或为 0
+- `404` `nid` 不存在或已被删除
+- `401` 认证失败 / `403` 已认证但角色非 `admin`
+
+#### POST /api/v1/admin/notif/update
+
+替换通知的内容字段（`md_title`、`md_content`、`title_preview`、`levels`）；`created_at`、`post_by`、`post_at` 等服务端字段保持不变。
+
+请求体（字段未加 json 标签，按 Go 字段名大小写不敏感绑定）：
+
+```json
+{
+  "Nid": 1,
+  "Md": {"Title": "新标题", "Content": "新内容"},
+  "TitlePreview": "新标题",
+  "Levels": {"Emergence": "B", "Importance": 5}
+}
+```
+
+- `200` `{"message": "ok"}`
+- `400` `nid` 缺失或为 0
+- `404` `nid` 不存在或已被删除
+- `401` / `403` 同上
+
+#### DELETE /api/v1/admin/notif/delete
+
+软删除通知（其 `nid` 不再复用，读取返回 `404`）。
+
+请求体：`{"nid": uint}`。
+
+- `200` `{"message": "ok"}`（幂等：`nid` 未知同样成功）
+- `400` `nid` 缺失或为 0
+- `401` / `403` 同上
+
+#### POST /api/v1/admin/notif/withdraw
+
+取消发布：清除 `post_by`/`post_at` 发布戳，通知本体保留；对未发布通知同样成功（幂等）。
+
+请求体：`{"nid": uint}`。
+
+- `200` `{"message": "ok"}`
+- `400` `nid` 缺失或为 0
+- `404` `nid` 不存在或已被删除
+- `401` / `403` 同上
 
 ## Token 语义补充
 

@@ -21,7 +21,7 @@
 - **认证与授权** — `echo-jwt` 中间件负责认证；角色控制区分 `user` 与 `admin`。`/api/v1/user/{username}/...` 下的自我访问路由校验路径段与认证身份一致（不一致返回 `403`）；实际生效的 `uid` 始终取自 JWT claims。
 - **速率限制** — 按客户端 IP 维度的内存令牌桶；`enabled`、`rate`、`burst`、`expiresIn` 均可配置。超限返回 `429`。
 - **请求体上限** — 请求体上限为 1 MiB，超限返回 `413`。
-- **通知系统** — 通知读取端点已注册于 `/api/v1/public/notif/get/{single,batch,update}`（需认证）与 `/api/v1/admin/notif/post`（admin，占位）。`nid` 始终由服务端分配：严格正整数且单调递增（`1, 2, 3, ...`），永不为零、删除后亦不回收复用。通知的创建/更新/删除/撤回等管理操作已定义但尚未注册路由。
+- **通知系统** — 通知读取端点已注册于 `/api/v1/public/notif/get/{single,batch,update}`（需认证），管理端点注册于 `/api/v1/admin/notif/{post,update,delete,withdraw}`（admin）。`nid` 始终由服务端分配：严格正整数且单调递增（`1, 2, 3, ...`），永不为零、删除后亦不回收复用。
 - **GitHub OAuth（预留）** — OAuth 注册与登录方式已在常量层定义但未实现，当前请求返回 `FeatureUnsupported`。
 
 ## 技术栈
@@ -167,9 +167,12 @@ go test ./...
 | `GET` | `/api/v1/public/notif/get/single` | 需认证 | 按 `nid` 获取单条通知（附服务端最新 `nid`） |
 | `GET` | `/api/v1/public/notif/get/batch` | 需认证 | 闭区间 `[nid_begin, nid_end]` 内的通知，按 `nid` 升序 |
 | `GET` | `/api/v1/public/notif/get/update` | 需认证 | 严格大于 `client_latest_nid` 的增量通知 |
-| `POST` | `/api/v1/admin/notif/post` | `admin` | 将通知标记为已发布（占位；当前返回 `FeatureUnsupported`） |
+| `POST` | `/api/v1/admin/notif/post` | `admin` | 将通知标记为已发布（`post_by` 记录操作管理员 uid，`post_at` 记录时间戳） |
+| `POST` | `/api/v1/admin/notif/update` | `admin` | 替换通知的内容字段 |
+| `DELETE` | `/api/v1/admin/notif/delete` | `admin` | 软删除通知；其 `nid` 不再复用 |
+| `POST` | `/api/v1/admin/notif/withdraw` | `admin` | 取消发布已发布的通知（清除发布戳） |
 
-通知管理操作 `notif/update`、`notif/delete`、`notif/withdraw` 已定义但尚未注册。`nid` 始终由服务端分配：严格正整数且单调递增（`1, 2, 3, ...`），永不为零，删除后不回收复用。
+`nid` 始终由服务端分配：严格正整数且单调递增（`1, 2, 3, ...`），永不为零，删除后不回收复用。
 
 ### 错误响应
 
