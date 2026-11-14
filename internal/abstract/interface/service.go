@@ -29,21 +29,41 @@ type InterfaceServiceCode interface {
 }
 
 type InterfaceServiceAdmin interface {
+	// test method
 	Sudo()
 }
 
 type InterfaceServiceHealth interface {
+	// check whether db is ok or not
 	HealthCheckDb() (bool, error)
 }
 
 type InterfaceServiceNotification interface {
 	CreateNotification(n model.Notification) error
-	RemoveNotification(nid uint) error
-	GetNotificationSingelByNid(nid uint) (*model.Notification, error)
-	GetNotificationBatchByNid(nidBegin uint, nidEnd uint) (*[]model.Notification, error)
+
+	// not physically delete from repo
+	DeleteNotification(nid uint) error
+
 	UpdateNotification(n model.Notification) error
+
+	// withdraw a posted notification
+	WithdrawNotification(nid uint) error
+
+	// backend compares the latest nid in repo with that client has; execute sync ops.
+	GetNotificationBatchUpdate(clientLatestNid uint) (*[]model.Notification, error)
+
+	// get notif with specific `nid`
+	GetNotificationSingleByNid(nid uint) (*model.Notification, error)
+
+	// get notif with specific range of `nid`
+	GetNotificationBatchByNid(nidBegin uint, nidEnd uint) (*[]model.Notification, error)
+
+	// get the latest `nid` from repo
 	GetLatestNotificationNid() (uint, error)
 
 	// post a notif to clients after created.
 	PostNotification(n *model.Notification) error
+
+	// upload and post a single notif
+	//UploadAndPostNotification(n *model.Notification) error
 }

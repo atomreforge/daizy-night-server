@@ -14,7 +14,7 @@ import (
 )
 
 func (h *HandlerComplex) HandleSignout(ctx *echo.Context) error {
-	// record flow chain (monotonically accumulating)
+	// trace (monotonically accumulating)
 	utils.AppendCallChain(ctx, string(consts.ModExprHandlerSignout))
 
 	req, err := Bind[model.SignoutBody](ctx)

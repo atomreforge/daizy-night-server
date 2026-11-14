@@ -43,16 +43,15 @@ type InterfaceRepoCalendar interface {
 	RemoveCalendarByModel(b *model.CalendarTable) error
 }
 
-type InterfaceRepoMarkdown interface {
-	CreateItem(md model.Markdown) error
-	Updates(md model.Markdown) error
-	GetMdByMdid(mdid uint) (model.Markdown, error)
-}
-
 type InterfaceRepoNotification interface {
+	// inserts a notification; `Nid` is always server-allocated as a strictly
+	// positive, monotonically increasing integer (never zero, never reused)
 	CreateItem(n model.Notification) error
 	RemoveItem(nid uint) error
 	GetItemByNid(nid uint) (model.Notification, error)
 	UpdateItem(n model.Notification) error
+	// greatest live nid; 0 when the table holds no live rows
 	GetLatestNotificationNid() (uint, error)
+	// closed range [nidBegin, nidEnd], ascending by nid; never a nil slice
+	GetNotificationBatch(nidBegin, nidEnd uint) (*[]model.Notification, error)
 }

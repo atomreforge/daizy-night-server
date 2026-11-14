@@ -1,6 +1,7 @@
 package handler
 
 // note that validation ops or so should be executed in handler layer to keep the service layer clean and reusable.
+// "validate (like format or null value) in handler and verify (like whether a regcode is legal) in service"
 
 import (
 	abstract "github.com/atomreforge/daizy-night-server/internal/abstract/interface"

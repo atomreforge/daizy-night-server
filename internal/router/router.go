@@ -30,7 +30,7 @@ func New(
 	e.POST("/api/v1/login", h.HandleLogin)
 	e.POST("/api/v1/refresh-access-token", h.HandleRefreshAccessToken)
 
-	// endpoints that requires authen only.
+	// owner user
 	// user-scoped routes carry a :username segment; handlers must verify it
 	// matches the authenticated identity (requireSelf), uid/ownership always
 	// comes from the JWT claims.
@@ -44,12 +44,15 @@ func New(
 	ptUser.PUT("/:username/calendar", h.HandleCalendarPut)
 	ptUser.DELETE("/:username/calendar", h.HandleCalendarDelete)
 
-	// endpoints that requires authen only (no anonymous access here).
+	// any user
 	ptAuthOnly := e.Group("/api/v1/public")
 	ptAuthOnly.Use(mid.AuthenJWT(pCrypto))
 	ptAuthOnly.Use(mid.MarkDomain(consts.DomainUnauthorized))
 	ptAuthOnly.GET("/health/db", h.HandleHealthCheckDb)
-	//ptAuthOnly.GET("/notif/get", h.HandleNotifGet())
+
+	ptAuthOnly.GET("/notif/get/single", h.HandleNotificationGetSingle)
+	ptAuthOnly.GET("/notif/get/batch", h.HandleNotificationGetBatch)
+	ptAuthOnly.GET("/notif/get/update", h.HandleNotificationGetBatchUpdate)
 
 	ptPublic := ptAuthOnly.Group("/user")
 	// AuthenJWT/DomainUnauthorized are inherited from ptAuthOnly; override as public domain
@@ -62,7 +65,10 @@ func New(
 	ptAdmin.Use(mid.AuthenJWT(pCrypto))
 	ptAdmin.Use(mid.RoleControl(consts.Admin))
 	ptAdmin.POST("/sudo", h.HandleAdminSudo)
-	//ptAdmin.POST("/notif/post", h.HandleNotifPost())
+	ptAdmin.POST("/notif/post", h.HandleNotificationPost)
+	ptAdmin.POST("/notif/update", h.HandleNotificationUpdate)
+	ptAdmin.DELETE("/notif/delete", h.HandleNotificationDelete)
+	ptAdmin.POST("/notif/withdraw", h.HandleNotificationWithdraw)
 
 	return e
 }

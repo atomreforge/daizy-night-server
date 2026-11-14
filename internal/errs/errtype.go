@@ -20,6 +20,7 @@ const (
 	ValidationKeyDuplicatedValue
 	ValidationKeyBadFormat
 	ValidationKeyBadValue
+	ValidationKeyBadRange
 
 	ValidationCryptoUnexpectedSigningMethod
 
@@ -68,6 +69,8 @@ const (
 	ConnDb
 	ConnDbTimeout
 	ConnDbInterrupted
+
+	UnnecBizNidAlreadyLatest
 )
 
 var errorMessages = map[errType]string{
@@ -83,6 +86,7 @@ var errorMessages = map[errType]string{
 	ValidationKeyDuplicatedValue: "duplicated value",
 	ValidationKeyBadFormat:       "key bad format",
 	ValidationKeyBadValue:        "key bad value",
+	ValidationKeyBadRange:        "key bad range",
 
 	RegistercodeFormat:              "invalid registercode format",
 	RegistercodeFormatInvalidLength: "registercode length should be shorter than 15 chars",
@@ -123,6 +127,8 @@ var errorMessages = map[errType]string{
 	ConnDb:            "db connection error",
 	ConnDbTimeout:     "db connection timeout",
 	ConnDbInterrupted: "db connection interrupted",
+
+	UnnecBizNidAlreadyLatest: "nid already latest",
 }
 
 // printer
@@ -131,4 +137,8 @@ func (t *errType) Say() string {
 		return msg
 	}
 	return "error description undefined"
+}
+
+func ErrSay(errtype errType) string {
+	return errtype.Say()
 }

@@ -21,30 +21,30 @@ import (
 func ValidateRegisterParams(b model.RegisterBody) error {
 	// username
 	if _, err := validateNonNull(b.Username); err != nil {
-		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprUsername), string(consts.ExprValueBlank))
+		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.UiExprUsername), string(consts.ExprValueBlank))
 	}
 
 	if _, err := validateCharValid(b.Username); err != nil {
-		return errs.BuildErrValidation(errs.ValidationKeyInvalidChar, http.StatusBadRequest, string(consts.ExprUsername), b.Username)
+		return errs.BuildErrValidation(errs.ValidationKeyInvalidChar, http.StatusBadRequest, string(consts.UiExprUsername), b.Username)
 	}
 	if _, err := validateLengthValid(b.Username, 1, 15); err != nil {
-		return errs.BuildErrValidation(errs.ValidationKeyInvalidLength, http.StatusBadRequest, string(consts.ExprUsername), b.Username)
+		return errs.BuildErrValidation(errs.ValidationKeyInvalidLength, http.StatusBadRequest, string(consts.UiExprUsername), b.Username)
 	}
 
 	// nickname
 	if _, err := validateNonNull(b.Nickname); err != nil {
-		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprNickname), string(consts.ExprValueBlank))
+		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.UiExprNickname), string(consts.ExprValueBlank))
 	}
 	if _, err := validateLengthValid(b.Nickname, 1, 15); err != nil {
-		return errs.BuildErrValidation(errs.ValidationKeyInvalidLength, http.StatusBadRequest, string(consts.ExprNickname), b.Nickname)
+		return errs.BuildErrValidation(errs.ValidationKeyInvalidLength, http.StatusBadRequest, string(consts.UiExprNickname), b.Nickname)
 	}
 
 	// password
 	if _, err := validateNonNull(b.Password); err != nil {
-		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprPassword), string(consts.ExprValueBlank))
+		return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.UiExprPassword), string(consts.ExprValueBlank))
 	}
 	if _, err := validateLengthValid(b.Password, 6, 128); err != nil {
-		return errs.BuildErrValidation(errs.ValidationKeyInvalidLength, http.StatusBadRequest, string(consts.ExprPassword), b.Password)
+		return errs.BuildErrValidation(errs.ValidationKeyInvalidLength, http.StatusBadRequest, string(consts.UiExprPassword), b.Password)
 	}
 
 	// registercode
@@ -65,10 +65,10 @@ func ValidateLoginParams(b *model.LoginBody) error {
 	case consts.LoginLegacy:
 		//
 		if _, err := validateNonNull(b.Username); err != nil {
-			return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprUsername), string(consts.ExprValueBlank))
+			return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.UiExprUsername), string(consts.ExprValueBlank))
 		}
 		if _, err := validateNonNull(b.Password); err != nil {
-			return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprPassword), string(consts.ExprValueBlank))
+			return errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.UiExprPassword), string(consts.ExprValueBlank))
 		}
 
 	case consts.LoginGithub:
@@ -122,21 +122,21 @@ func validateCharValid(s string) (bool, error) {
 
 func ValidateFormatRegistercode(c model.RegistercodeRawHex) (bool, error) {
 	if c == "" {
-		return false, errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.ExprRegistercode), string(consts.ExprValueNull))
+		return false, errs.BuildErrValidation(errs.ValidationKeyNull, http.StatusBadRequest, string(consts.UiExprRegistercode), string(consts.ExprValueNull))
 	}
 	i := strings.LastIndex(string(c), ".")
 	if i <= 0 || i == len(c)-1 {
-		return false, errs.BuildErrValidation(errs.ValidationKeyBadFormat, http.StatusBadRequest, string(consts.ExprRegistercode), c.String())
+		return false, errs.BuildErrValidation(errs.ValidationKeyBadFormat, http.StatusBadRequest, string(consts.UiExprRegistercode), c.String())
 	}
 	payloadHex, sigHex := string(c)[:i], string(c)[i+1:]
 	// an Ed25519 signature is exactly 64 bytes (128 hex chars); the payload
 	// is bounded above. cheap size gates before any hex parsing or crypto.
 	if len(sigHex) != 2*ed25519.SignatureSize ||
 		len(payloadHex) == 0 || len(payloadHex) > maxRegistercodePayloadHex {
-		return false, errs.BuildErrValidation(errs.ValidationKeyBadFormat, http.StatusBadRequest, string(consts.ExprRegistercode), c.String())
+		return false, errs.BuildErrValidation(errs.ValidationKeyBadFormat, http.StatusBadRequest, string(consts.UiExprRegistercode), c.String())
 	}
 	if !(utils.IsHex(payloadHex) && utils.IsHex(sigHex)) {
-		return false, errs.BuildErrValidation(errs.ValidationKeyBadFormat, http.StatusBadRequest, string(consts.ExprRegistercode), c.String())
+		return false, errs.BuildErrValidation(errs.ValidationKeyBadFormat, http.StatusBadRequest, string(consts.UiExprRegistercode), c.String())
 	}
 	return true, nil
 }

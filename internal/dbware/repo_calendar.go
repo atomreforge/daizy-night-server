@@ -35,7 +35,7 @@ func (r *RepoCalendar) RecordNewCalendar(b *model.CalendarTable) error {
 			return err
 		}
 		if count > 0 {
-			return errs.BuildErrValidation(errs.ValidationKeyDuplicatedValue, http.StatusBadRequest, string(consts.ExprUserID), string(consts.ExprCalendar))
+			return errs.BuildErrValidation(errs.ValidationKeyDuplicatedValue, http.StatusBadRequest, string(consts.ExprUserID), string(consts.UiExprCalendar))
 		}
 		return createCalendar(tx, b)
 	})
@@ -48,7 +48,7 @@ func (r *RepoCalendar) GetCalendarByUid(uid uint) (*model.CalendarTable, error) 
 		Where("user_id = ?", uid).First(&rec)
 	if res.Error != nil {
 		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-			return nil, errs.BuildErrDbRecord(errs.DbRecordNotFound, http.StatusNotFound, string(consts.ExprCalendar))
+			return nil, errs.BuildErrDbRecord(errs.DbRecordNotFound, http.StatusNotFound, string(consts.UiExprCalendar))
 		}
 		return nil, res.Error
 	}
@@ -120,7 +120,7 @@ func (r *RepoCalendar) RemoveCalendarByUid(uid uint) error {
 // RemoveCalendarByModel removes by primary key, cascading the items.
 func (r *RepoCalendar) RemoveCalendarByModel(b *model.CalendarTable) error {
 	if b == nil || b.ID == 0 {
-		return errs.BuildErrDbRecord(errs.DbRecordNotFound, http.StatusBadRequest, string(consts.ExprCalendar))
+		return errs.BuildErrDbRecord(errs.DbRecordNotFound, http.StatusBadRequest, string(consts.UiExprCalendar))
 	}
 	return r.pDB.DB().Transaction(func(tx *gorm.DB) error {
 		var cur model.CalendarTable
@@ -141,7 +141,7 @@ func (r *RepoCalendar) RemoveCalendarByModel(b *model.CalendarTable) error {
 // inserts the calendar row plus its items.
 func createCalendar(tx *gorm.DB, b *model.CalendarTable) error {
 	for i := 0; i < maxGenIDAttempts; i++ {
-		id, err := utils.GenUid()
+		id, err := utils.GenRandID()
 		if err != nil {
 			return err
 		}

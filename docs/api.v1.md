@@ -290,14 +290,50 @@
 - `401` access token 缺失、无效或过期
 - `500` `{"message": "error with db."}`（数据库连接失败）
 
-### GET /api/v1/public/notif/get
+### 通知端点（`/api/v1/public/notif/get/*`）
 
-通知功能占位端点（init 阶段）。需要认证。当前版本暂未开放（路由暂未注册）。
+通知读取端点，均需要认证。`nid` 语义：由服务端分配的严格正整数、单调递增（`1, 2, 3, ...`），永不为零；删除后的 `nid` 不回收复用。删除采用软删除，已删除的通知视为不存在。
 
-响应：
+响应统一为 `{"payload": ..., "message": "..."}`；`payload` 内通知对象含 `md_title`、`md_content`（内联自 Markdown）、`nid`、`title_preview`、`post_by`、`post_at`、`levels` 等字段。
 
-- `200` `{"message": "ok"}`（占位实现，暂无实际内容）
+#### GET /api/v1/public/notif/get/single
+
+按 `nid` 获取单条通知。
+
+请求体：
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `nid` | uint | 必填正整数；缺失或为 0 返回 `400` |
+
+- `200` 单条通知对象
+- `400` `nid` 缺失/为 0，或超过服务端最新 `nid`（无效值）
+- `404` `nid` 位于有效范围内但对应通知已被删除
 - `401` access token 缺失、无效或过期
+
+#### GET /api/v1/public/notif/get/batch
+
+按闭区间 `[nid_begin, nid_end]` 批量获取，按 `nid` 升序。
+
+请求体：`nid_begin`、`nid_end`（uint）。任一为 0、或 `nid_begin >= nid_end` 返回 `400`。
+
+- `200` `{"payload": [...]}`（`payload` 恒为数组，空区间为 `[]`）
+- `400` 区间非法
+- `401` 同上
+
+#### GET /api/v1/public/notif/get/update
+
+增量同步：返回严格大于 `client_latest_nid` 的全部通知（不含客户端已持有的那条）。
+
+请求体：
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `client_latest_nid` | uint | 客户端已持有的最新 `nid`；`0` 表示全量同步 |
+
+- `200` `{"payload": [...]}`（增量批次，按 `nid` 升序）
+- `400` 客户端已是最新（`{"message": "unnecessary business; details::nid already latest"}`）
+- `401` 同上
 
 ### POST /api/v1/user/signout
 
@@ -346,13 +382,19 @@
 
 ### POST /api/v1/admin/notif/post
 
-通知功能占位端点（init 阶段）。需要认证，且要求 `admin` 角色。当前版本暂未开放（路由暂未注册）。
+将一条通知标记为已发布（占位实现）。需要认证，且要求 `admin` 角色。
 
-响应：
+请求体：
 
-- `200` `{"message": "ok"}`（占位实现，暂无实际内容）
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `nid` | uint | 待发布通知的编号，必填正整数 |
+
+- 当前占位实现返回 `500` `{"message": "unsupported feature"}`（`nid` 无效或不存在时返回 `400`/`404`）
 - `401` 认证失败
 - `403` 已认证但角色非 `admin`
+
+> 通知管理操作 `notif/update`、`notif/delete`、`notif/withdraw` 已定义但尚未注册路由。
 
 ## Token 语义补充
 

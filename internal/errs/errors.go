@@ -1,6 +1,8 @@
 package errs
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // business logic
 type ErrRegisterLogic struct {
@@ -130,7 +132,7 @@ type ErrInternalServiceCall struct {
 	Type errType
 
 	// shouldnt be exposed to user.
-	//Http  int
+	Http  int
 	Field string
 }
 
@@ -138,7 +140,21 @@ func (e *ErrInternalServiceCall) Error() string {
 	return fmt.Sprintf("error in internal service call; details::%s", e.Type.Say())
 }
 
-// func (e *ErrInternalServiceCall) StatusCode() int { return e.Http }
+func (e *ErrInternalServiceCall) StatusCode() int { return e.Http }
 func (e *ErrInternalServiceCall) Respond() string {
 	return "internal error"
+}
+
+type ErrUnnecBiz struct {
+	Type  errType
+	Http  int
+	Field string
+}
+
+func (e *ErrUnnecBiz) Error() string {
+	return fmt.Sprintf("unnecessary business; details::%s", e.Type.Say())
+}
+func (e *ErrUnnecBiz) StatusCode() int { return e.Http }
+func (e *ErrUnnecBiz) Respond() string {
+	return fmt.Sprintf("unnecessary business; details::%s", e.Type.Say())
 }

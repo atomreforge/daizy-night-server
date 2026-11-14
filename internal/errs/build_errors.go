@@ -36,6 +36,10 @@ func BuildErrConnDb(errtype ErrType, http int) *ErrConnDb {
 	return &ErrConnDb{Type: errtype, Http: http}
 }
 
-func BuildErrInternalServiceCall(errtype ErrType) *ErrInternalServiceCall {
+func BuildErrInternalCall(errtype ErrType) *ErrInternalServiceCall {
 	return &ErrInternalServiceCall{Type: errtype}
+}
+
+func BuildErrUnnecBiz(errtype ErrType, http int, field string) *ErrUnnecBiz {
+	return &ErrUnnecBiz{Type: errtype, Http: http, Field: field}
 }

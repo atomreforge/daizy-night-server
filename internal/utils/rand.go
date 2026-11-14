@@ -5,8 +5,8 @@ import (
 	"math/big"
 )
 
-// GenUid returns a random 7-digit decimal id, range [1000000, 9999999].
-func GenUid() (uint, error) {
+// GenRandID returns a random 7-digit decimal id, range [1000000, 9999999].
+func GenRandID() (uint, error) {
 	n, err := rand.Int(rand.Reader, big.NewInt(9000000)) // [0, 9000000)
 	if err != nil {
 		return 0, err

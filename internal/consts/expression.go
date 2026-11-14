@@ -16,21 +16,21 @@ const (
 	ExprBadFormat expression = "bad format"
 
 	//ExprAtomid       expression = "Attr-AtomID"
-	ExprUsername     expression = "Attr-Username"
-	ExprNickname     expression = "Attr-Nickname"
-	ExprPassword     expression = "Attr-Password"
-	ExprEntrycode    expression = "Attr-Entrycode"
-	ExprRegistercode expression = "Attr-Registercode"
+	UiExprUsername     expression = "Attr-Username"
+	UiExprNickname     expression = "Attr-Nickname"
+	UiExprPassword     expression = "Attr-Password"
+	UiExprEntrycode    expression = "Attr-Entrycode"
+	UiExprRegistercode expression = "Attr-Registercode"
+	UiExprNid          expression = "Attr-NotificationID"
+	UiExprCalendar     expression = "Attr-Calendar"
 
 	InlineExprUser  expression = "User"
 	InlineExprAdmin expression = "Admin"
-	ExprRoleUser    expression = "Role-User"
-	ExprRoleAdmin   expression = "Role-Admin"
+	UiExprRoleUser  expression = "Role-User"
+	UiExprRoleAdmin expression = "Role-Admin"
 
-	ExprCalendar expression = "Attr-Calendar"
-
-	ExprEnckey expression = "Crypto-PrivateKey"
-	ExprDeckey expression = "Crypto-PublicKey"
+	UiExprEnckey expression = "Crypto-PrivateKey"
+	UiExprDeckey expression = "Crypto-PublicKey"
 )
 
 // db
@@ -58,7 +58,7 @@ const (
 	ExprTraceid      expression = "traceid"
 )
 
-// json
+// json field
 // only expressions in the json body can be place here.
 const (
 	// user
@@ -86,6 +86,12 @@ const (
 
 	// notification
 	JsonExprNid expression = "nid"
+)
+
+// json value
+const (
+	JsonExprMessageOk       expression = "ok"
+	JsonExprMessageBadParam expression = "bad param"
 )
 
 // process
@@ -125,6 +131,7 @@ const (
 
 // type of request
 const (
+	// account
 	ExprReqRegister  expression = "Request-Register"
 	ExprReqLogin     expression = "Request-Login"
 	ExprReqUserInfo  expression = "Request-UserInfo"
@@ -132,10 +139,20 @@ const (
 	ExprReqRefresh   expression = "Request-Refresh"
 	ExprReqSignout   expression = "Request-Signout"
 
+	// calendar
 	ExprReqCalendarGet    expression = "Request-CalendarGet"
 	ExprReqCalendarPut    expression = "Request-CalendarPut"
 	ExprReqCalendarDelete expression = "Request-CalendarDelete"
-	ExprReqNotifGetSingle expression = "Request-NotificationGetSingle"
+
+	// notif
+	ExprReqNotifCreate         expression = "Request-NotificationCreate"
+	ExprReqNotifUpdate         expression = "Request-NotificationUpdate"
+	ExprReqNotifDelete         expression = "Request-NotificationDelete"
+	ExprReqNotifWithdraw       expression = "Request-NotificationWithdraw"
+	ExprReqNotifPost           expression = "Request-NotificationPost"
+	ExprReqNotifGetSingle      expression = "Request-NotificationGetSingle"
+	ExprReqNotifGetBatch       expression = "Request-NotificationGetBatch"
+	ExprReqNotifGetUpdateBatch expression = "Request-NotificationGetUpdatebatch"
 )
 
 // router domain

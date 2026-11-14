@@ -145,7 +145,7 @@ func NewJWTKeyFunc(deckey ed25519.PublicKey) jwt.Keyfunc {
 			return nil, errs.BuildErrValidation(
 				errs.ValidationCryptoUnexpectedSigningMethod,
 				http.StatusUnauthorized,
-				string(consts.ExprDeckey),
+				string(consts.UiExprDeckey),
 				string(consts.ExprIndetermined),
 			)
 		}

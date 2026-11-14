@@ -21,7 +21,7 @@ The project name _Daizy Night_ is a homophone of _The Hazy Night_.
 - **Authentication & authorization** — `echo-jwt` middleware performs authentication; role control distinguishes `user` and `admin`. Self-access routes under `/api/v1/user/{username}/...` verify that the path segment matches the authenticated identity (`403` otherwise); the acting `uid` is always taken from the JWT claims.
 - **Rate limiting** — a per-client-IP, in-memory token bucket; `enabled`, `rate`, `burst` and `expiresIn` are configurable. Exceeding the limit yields `429`.
 - **Request body limit** — request bodies are capped at 1 MiB; larger requests are rejected with `413`.
-- **Notification system (reserved)** — the notification and event subsystems are initialized, but the corresponding endpoints are not registered in the current release.
+- **Notification system** — notification read endpoints registered under `/api/v1/public/notif/get/{single,batch,update}` (authenticated) and `/api/v1/admin/notif/post` (admin, placeholder). `nid` is always server-assigned: a strictly positive, monotonically increasing integer (`1, 2, 3, ...`) that is never zero and never reused — the nid of a removed notification stays retired. Notification create/update/delete/withdraw admin operations are defined but not registered yet.
 - **GitHub OAuth (reserved)** — OAuth register and login ways are defined in the constant layer but not implemented; requests currently return `FeatureUnsupported`.
 
 ## Tech Stack
@@ -164,8 +164,12 @@ All routes are prefixed with `/api/v1`; request and response bodies are JSON (`C
 | `GET` | `/api/v1/public/user/{username}/calendar` | authenticated | Calendar of any user, `roaming` fields stripped |
 | `GET` | `/api/v1/public/health/db` | authenticated | Database connectivity check |
 | `POST` | `/api/v1/admin/sudo` | `admin` | Placeholder administrative operation |
+| `GET` | `/api/v1/public/notif/get/single` | authenticated | A single notification by `nid`, with the repo's latest nid |
+| `GET` | `/api/v1/public/notif/get/batch` | authenticated | Notifications in the closed `[nid_begin, nid_end]` range, ascending |
+| `GET` | `/api/v1/public/notif/get/update` | authenticated | Delta strictly after the client's `client_latest_nid` |
+| `POST` | `/api/v1/admin/notif/post` | `admin` | Marks a notification as posted (placeholder; currently `FeatureUnsupported`) |
 
-The notification endpoints `GET /api/v1/public/notif/get` and `POST /api/v1/admin/notif/post` are reserved and not registered in the current release.
+Notification admin operations `notif/update`, `notif/delete` and `notif/withdraw` are defined but not registered yet. `nid` is always server-assigned: strictly positive, monotonically increasing (`1, 2, 3, ...`), never zero, never reused after removal.
 
 ### Error responses
 

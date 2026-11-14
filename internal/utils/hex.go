@@ -31,7 +31,7 @@ func HexToPubKey(s string) (ed25519.PublicKey, error) {
 		return nil, err
 	}
 	if len(b) != ed25519.PublicKeySize {
-		return nil, errs.BuildErrValidation(errs.ValidationKeyBadFormat, http.StatusBadRequest, string(consts.ExprDeckey), string(consts.ExprBadFormat))
+		return nil, errs.BuildErrValidation(errs.ValidationKeyBadFormat, http.StatusBadRequest, string(consts.UiExprDeckey), string(consts.ExprBadFormat))
 	}
 	return ed25519.PublicKey(b), nil
 }

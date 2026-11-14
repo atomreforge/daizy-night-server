@@ -36,7 +36,7 @@ func (r *RepoUser) CreateUser(b *model.User) error {
 			return err
 		}
 		if n > 0 {
-			return errs.BuildErrValidation(errs.ValidationKeyDuplicatedValue, http.StatusBadRequest, string(consts.ExprUsername), b.Username)
+			return errs.BuildErrValidation(errs.ValidationKeyDuplicatedValue, http.StatusBadRequest, string(consts.UiExprUsername), b.Username)
 		}
 		if err := tx.Model(&model.User{}).Where("registercode = ?", string(b.Registercode)).Count(&n).Error; err != nil {
 			return err
@@ -46,7 +46,7 @@ func (r *RepoUser) CreateUser(b *model.User) error {
 		}
 
 		for i := 0; i < maxGenIDAttempts; i++ {
-			uid, err := utils.GenUid()
+			uid, err := utils.GenRandID()
 			if err != nil {
 				return err
 			}
@@ -56,6 +56,7 @@ func (r *RepoUser) CreateUser(b *model.User) error {
 			b.Role = consts.User
 			b.RegisterTime = time.Now()
 
+			// formal repo ops
 			err = tx.Create(b).Error
 			if err == nil {
 				return claimRegistercode(tx, b)
@@ -85,7 +86,7 @@ func attributeDuplicate(tx *gorm.DB, b *model.User) error {
 		return err
 	}
 	if n > 0 {
-		return errs.BuildErrValidation(errs.ValidationKeyDuplicatedValue, http.StatusBadRequest, string(consts.ExprUsername), b.Username)
+		return errs.BuildErrValidation(errs.ValidationKeyDuplicatedValue, http.StatusBadRequest, string(consts.UiExprUsername), b.Username)
 	}
 	if err := tx.Model(&model.User{}).Where("registercode = ?", string(b.Registercode)).Count(&n).Error; err != nil {
 		return err
